@@ -1,0 +1,77 @@
+[
+  {
+    "id": "q1",
+    "question": "What is the value of x if 2x + 5 = 13?",
+    "choices": ["3", "4", "5", "6"],
+    "correct": 1,
+    "category": "Math"
+  },
+  {
+    "id": "q2",
+    "question": "Which of the following is a prime number?",
+    "choices": ["9", "15", "17", "21"],
+    "correct": 2,
+    "category": "Math"
+  },
+  {
+    "id": "q3",
+    "question": "If 3(x - 4) = 15, what is the value of x?",
+    "choices": ["7", "9", "11", "13"],
+    "correct": 1,
+    "category": "Math"
+  },
+  {
+    "id": "q4",
+    "question": "Which word best describes someone who is \"meticulous\"?",
+    "choices": ["Careless", "Careful", "Quick", "Lazy"],
+    "correct": 1,
+    "category": "Reading"
+  },
+  {
+    "id": "q5",
+    "question": "What is 25% of 80?",
+    "choices": ["15", "20", "25", "30"],
+    "correct": 1,
+    "category": "Math"
+  },
+  {
+    "id": "q6",
+    "question": "Which sentence is grammatically correct?",
+    "choices": [
+      "Neither the students nor the teacher were present.",
+      "Neither the students nor the teacher was present.",
+      "Neither the students or the teacher were present.",
+      "Neither the students or the teacher was present."
+    ],
+    "correct": 1,
+    "category": "Writing"
+  },
+  {
+    "id": "q7",
+    "question": "If a rectangle has a length of 12 and width of 5, what is its area?",
+    "choices": ["17", "34", "60", "72"],
+    "correct": 2,
+    "category": "Math"
+  },
+  {
+    "id": "q8",
+    "question": "What does \"benevolent\" mean?",
+    "choices": ["Hostile", "Kind", "Indifferent", "Angry"],
+    "correct": 1,
+    "category": "Reading"
+  },
+  {
+    "id": "q9",
+    "question": "What is the solution to the equation: 4x - 7 = 21?",
+    "choices": ["5", "6", "7", "8"],
+    "correct": 2,
+    "category": "Math"
+  },
+  {
+    "id": "q10",
+    "question": "Which punctuation mark is missing? The dog ran fast___ it caught the ball.",
+    "choices": [", and", "; and", ". And", "and"],
+    "correct": 0,
+    "category": "Writing"
+  }
+]

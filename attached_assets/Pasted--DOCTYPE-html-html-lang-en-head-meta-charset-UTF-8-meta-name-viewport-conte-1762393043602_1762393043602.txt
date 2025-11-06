@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAT Duel</title>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js"></script>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f3f9;
+      color: #333;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .question {
+      font-size: 1.1rem;
+      margin-top: 1rem;
+    }
+    .choice {
+      display: block;
+      margin: 0.5rem auto;
+      padding: 0.5rem 1rem;
+      background: #eee;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      max-width: 300px;
+    }
+    .choice:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>SAT Duel</h1>
+    <div id="game">
+      <input id="roomInput" placeholder="Enter room code or create one" />
+      <button id="createBtn">Create Room</button>
+      <button id="joinBtn">Join Room</button>
+
+      <div id="status"></div>
+      <div id="questionArea" style="display:none;">
+        <div class="question" id="questionText"></div>
+        <div id="choices"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Paste your firebaseConfig object here ↓↓↓
+    const firebaseConfig = YOUR_CONFIG_HERE;
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database(app);
+
+    // Quick local question bank (you can expand this)
+    const questions = [
+      {
+        question: "What is the value of x if 2x + 5 = 13?",
+        choices: ["3", "4", "5", "6"],
+        correct: 1
+      },
+      {
+        question: "Which of the following is a prime number?",
+        choices: ["9", "15", "17", "21"],
+        correct: 2
+      }
+    ];
+
+    const roomInput = document.getElementById("roomInput");
+    const createBtn = document.getElementById("createBtn");
+    const joinBtn = document.getElementById("joinBtn");
+    const statusDiv = document.getElementById("status");
+    const questionArea = document.getElementById("questionArea");
+    const questionText = document.getElementById("questionText");
+    const choicesDiv = document.getElementById("choices");
+
+    let playerId = "player" + Math.floor(Math.random() * 1000);
+    let roomRef = null;
+
+    function showQuestion(q) {
+      questionText.textContent = q.question;
+      choicesDiv.innerHTML = "";
+      q.choices.forEach((choice, i) => {
+        const div = document.createElement("div");
+        div.className = "choice";
+        div.textContent = choice;
+        div.onclick = () => submitAnswer(i);
+        choicesDiv.appendChild(div);
+      });
+    }
+
+    function submitAnswer(i) {
+      roomRef.child("answers/" + playerId).set(i);
+    }
+
+    function listenForAnswers(roomId, currentQ) {
+      roomRef.child("answers").on("value", (snapshot) => {
+        const answers = snapshot.val() || {};
+        const opponent = Object.keys(answers).find(k => k !== playerId);
+        if (answers[playerId] != null && answers[opponent] != null) {
+          const correct = questions[currentQ].correct;
+          const p1 = answers[playerId] === correct ? 1 : 0;
+          const p2 = answers[opponent] === correct ? 1 : 0;
+          statusDiv.textContent = `You: ${p1} | Opponent: ${p2}`;
+          setTimeout(() => {
+            nextQuestion(roomId, currentQ + 1);
+          }, 2000);
+        }
+      });
+    }
+
+    function nextQuestion(roomId, index) {
+      if (index >= questions.length) {
+        statusDiv.textContent = "Game Over!";
+        questionArea.style.display = "none";
+        return;
+      }
+      roomRef.child("currentQuestion").set(index);
+    }
+
+    createBtn.onclick = async () => {
+      const roomId = roomInput.value || Math.floor(Math.random() * 10000).toString();
+      roomRef = db.ref("rooms/" + roomId);
+      await roomRef.set({ currentQuestion: 0 });
+      statusDiv.textContent = `Room ${roomId} created. Waiting for opponent...`;
+      questionArea.style.display = "none";
+
+      roomRef.on("value", (snap) => {
+        const data = snap.val();
+        if (data && data.start === true) startGame(roomId);
+      });
+    };
+
+    joinBtn.onclick = async () => {
+      const roomId = roomInput.value;
+      if (!roomId) return alert("Enter a room code!");
+      roomRef = db.ref("rooms/" + roomId);
+      const snapshot = await roomRef.once("value");
+      if (!snapshot.exists()) return alert("Room not found!");
+      await roomRef.update({ start: true });
+      startGame(roomId);
+    };
+
+    function startGame(roomId) {
+      statusDiv.textContent = "Game started!";
+      questionArea.style.display = "block";
+      roomRef.child("currentQuestion").on("value", (snap) => {
+        const currentQ = snap.val();
+        if (currentQ == null) return;
+        showQuestion(questions[currentQ]);
+        listenForAnswers(roomId, currentQ);
+      });
+    }
+  </script>
+</body>
+</html>
