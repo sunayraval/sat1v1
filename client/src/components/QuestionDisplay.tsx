@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Loader2 } from "lucide-react";
 import { Question } from "@shared/schema";
+import "@/styles/neon.css";
 import "@/styles/questions.css";
 import "@/styles/question-display.css";
 

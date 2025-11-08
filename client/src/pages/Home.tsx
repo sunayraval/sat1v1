@@ -183,15 +183,25 @@ export default function Home() {
     }
   }, [roomData?.answers, gameState, currentQuestionIndex, playerId, opponentId, playerScore, opponentScore, roomCode, nextQuestion]);
 
-  const handleCreateRoom = async (code: string, config?: { category?: string; numQuestions?: number }) => {
-    const success = await createRoom(code, config);
-    if (success) {
-      setRoomCode(code);
-      setGameState("waiting");
-    } else {
+  const handleCreateRoom = async (code: string, config?: { modules?: string[]; difficulties?: string[]; numQuestions?: number }) => {
+    try {
+      const formattedConfig = {
+        modules: config?.modules || ["math", "reading", "writing"],
+        difficulties: config?.difficulties || ["E", "M", "H"],
+        numQuestions: config?.numQuestions || 10
+      };
+      const success = await createRoom(code, formattedConfig);
+      if (success) {
+        setRoomCode(code);
+        setGameState("waiting");
+      } else {
+        throw new Error("Failed to create room");
+      }
+    } catch (error) {
+      console.error("Room creation error:", error);
       toast({
         title: "Error",
-        description: "Could not create room. Please check your Firebase configuration.",
+        description: "Could not create room. Please try again.",
         variant: "destructive",
       });
     }
@@ -274,13 +284,15 @@ export default function Home() {
   // Defensive: ensure we have at least one question and the index is valid
   if (!questions || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-background py-8 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-lg font-semibold">No questions available for this room configuration.</p>
-          <p className="text-sm text-muted-foreground">Try changing the room settings or creating a new room.</p>
-          <div className="mt-4">
-            <Button variant="outline" onClick={handleNewRoom}>Leave Room</Button>
-          </div>
+      <div className="min-h-screen bg-gradient-dark py-8 flex items-center justify-center">
+        <div className="text-center animate-fadeIn">
+          <Card className="neon-container p-6">
+            <p className="text-lg font-semibold neon-text">No questions available for this room configuration.</p>
+            <p className="text-sm text-muted-foreground mt-2">Try changing the room settings or creating a new room.</p>
+            <div className="mt-4">
+              <Button variant="outline" className="neon-hover neon-text" onClick={handleNewRoom}>Leave Room</Button>
+            </div>
+          </Card>
         </div>
       </div>
     );
@@ -290,9 +302,9 @@ export default function Home() {
   const currentQuestion = questions[safeIndex];
 
   return (
-    <div className="min-h-screen bg-background py-8 space-y-6">
+    <div className="min-h-screen bg-gradient-dark py-8 space-y-6">
       <div className="max-w-2xl mx-auto px-4 mb-4 flex justify-between items-center">
-        <Button variant="outline" onClick={handleNewRoom}>Leave Room</Button>
+        <Button variant="outline" className="neon-hover neon-text" onClick={handleNewRoom}>Leave Room</Button>
       </div>
       <ScoreBoard
         playerScore={playerScore}
@@ -308,12 +320,12 @@ export default function Home() {
         showExplanation={showExplanation}
       />
       {showExplanation && currentQuestion.content.rationale && (
-        <div className="max-w-2xl mx-auto px-4 mt-4">
-          <Card>
+        <div className="max-w-2xl mx-auto px-4 mt-4 animate-fadeIn">
+          <Card className="neon-container">
             <CardContent className="pt-4">
-              <h3 className="font-semibold mb-2">Explanation:</h3>
+              <h3 className="font-semibold mb-2 neon-text">Explanation:</h3>
               <div 
-                className="prose prose-sm max-w-none" 
+                className="prose prose-sm max-w-none question-content" 
                 dangerouslySetInnerHTML={{ __html: currentQuestion.content.rationale }} 
               />
             </CardContent>

@@ -10,8 +10,33 @@ export default {
         md: ".375rem", /* 6px */
         sm: ".1875rem", /* 3px */
       },
+      backgroundImage: {
+        'gradient-dark': 'linear-gradient(to bottom right, hsl(0 0% 3.9%), hsl(0 0% 2%))',
+      },
+      animation: {
+        'glow': 'glow 2s ease-in-out infinite',
+        'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        glow: {
+          '0%, 100%': {
+            'text-shadow': '0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3), 0 0 30px rgba(16, 185, 129, 0.2)',
+          },
+          '50%': {
+            'text-shadow': '0 0 20px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.3)',
+          },
+        },
+        'pulse-glow': {
+          '0%, 100%': {
+            'box-shadow': '0 0 10px rgba(16, 185, 129, 0.5), 0 0 20px rgba(16, 185, 129, 0.3), 0 0 30px rgba(16, 185, 129, 0.2)',
+          },
+          '50%': {
+            'box-shadow': '0 0 20px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.3)',
+          },
+        },
+      },
       colors: {
-        // Flat / base colors (regular buttons)
+        // Dark theme with neon accents
         background: "hsl(var(--background) / <alpha-value>)",
         foreground: "hsl(var(--foreground) / <alpha-value>)",
         border: "hsl(var(--border) / <alpha-value>)",

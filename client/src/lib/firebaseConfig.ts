@@ -15,7 +15,7 @@
 */
 
 export const firebaseConfig = {
-  // Replace these placeholder values with your project's config.
+  apiKey: "AIzaSyAZj03gwCMCTNslj2bYCk0P2QLBwIUfULw",
   authDomain: "v1sat-c4acf.firebaseapp.com",
   databaseURL: "https://v1sat-c4acf-default-rtdb.firebaseio.com",
   projectId: "v1sat-c4acf",
