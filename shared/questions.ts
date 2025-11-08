@@ -29,11 +29,24 @@ function transformQuestion(id: string, raw: RawQuestion): Question | null {
     ? raw.content.answerOptions
     : [];
 
+  // Normalize answerOptions: some items are objects {id, content} — extract content HTML
+  if (answerOptions && answerOptions.length > 0 && typeof answerOptions[0] === "object") {
+    answerOptions = (answerOptions as any[]).map((opt) => opt?.content ?? String(opt));
+  }
+
   let correct_answer = raw.content.correct_answer && raw.content.correct_answer.length
     ? raw.content.correct_answer
     : raw.content.keys && raw.content.keys.length
       ? raw.content.keys
       : [];
+
+  // If correct_answer uses letter labels like "A", "B", "C", map them to the actual option content
+  if (correct_answer.length > 0 && typeof correct_answer[0] === "string" && /^[A-D]$/i.test(correct_answer[0].trim())) {
+    correct_answer = correct_answer.map((label) => {
+      const idx = label.trim().toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
+      return answerOptions[idx] ?? label;
+    });
+  }
 
   // If still no answerOptions but we have keys, use keys as options
   if (answerOptions.length === 0 && raw.content.keys?.length) {
