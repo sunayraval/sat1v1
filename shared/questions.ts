@@ -29,9 +29,12 @@ function transformQuestion(id: string, raw: RawQuestion): Question | null {
   const module = raw.module?.toLowerCase() || "math";
   const difficulty = raw.difficulty || "M";
 
-  let answerOptions = raw.content.answerOptions && raw.content.answerOptions.length
-    ? raw.content.answerOptions
-    : [];
+  // Skip questions without exactly 4 answer options
+  if (!raw.content.answerOptions || raw.content.answerOptions.length !== 4) {
+    return null;
+  }
+
+  let answerOptions = raw.content.answerOptions;
 
   // Normalize answerOptions: some items are objects {id, content} — extract content HTML
   if (answerOptions && answerOptions.length > 0) {

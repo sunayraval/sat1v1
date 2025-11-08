@@ -1,34 +1,113 @@
+/* Global theme colors */
+:root {
+  --neon-primary: rgb(16, 185, 129);
+  --neon-secondary: rgb(139, 92, 246);
+  --dark-bg: rgb(9, 9, 11);
+  --dark-surface: rgba(24, 24, 27, 0.7);
+  --text-primary: rgb(250, 250, 250);
+  --text-secondary: rgb(161, 161, 170);
+}
+
+/* Base dark theme */
 .neon-container {
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
+  background: var(--dark-surface);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(16, 185, 129, 0.2);
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+  box-shadow: 
+    0 0 10px rgba(16, 185, 129, 0.1),
+    inset 0 0 20px rgba(16, 185, 129, 0.05);
 }
 
 .neon-text {
-  color: rgb(16, 185, 129);
-  text-shadow: 0 0 5px rgba(16, 185, 129, 0.5),
-               0 0 10px rgba(16, 185, 129, 0.3),
-               0 0 15px rgba(16, 185, 129, 0.2);
+  color: var(--text-primary);
+  text-shadow: 
+    0 0 5px rgba(16, 185, 129, 0.5),
+    0 0 10px rgba(16, 185, 129, 0.3),
+    0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.neon-text-accent {
+  color: var(--neon-primary);
+  text-shadow: 
+    0 0 5px rgba(16, 185, 129, 0.5),
+    0 0 10px rgba(16, 185, 129, 0.3),
+    0 0 15px rgba(16, 185, 129, 0.2);
 }
 
 .neon-border {
-  border-color: rgb(16, 185, 129);
-  box-shadow: 0 0 5px rgba(16, 185, 129, 0.5),
-              0 0 10px rgba(16, 185, 129, 0.3),
-              0 0 15px rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 
+    0 0 5px rgba(16, 185, 129, 0.5),
+    0 0 10px rgba(16, 185, 129, 0.2),
+    inset 0 0 15px rgba(16, 185, 129, 0.1);
 }
 
 .neon-hover:hover {
-  border-color: rgb(16, 185, 129);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.6),
-              0 0 20px rgba(16, 185, 129, 0.4),
-              0 0 30px rgba(16, 185, 129, 0.3);
+  border-color: var(--neon-primary);
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 
+    0 0 10px rgba(16, 185, 129, 0.6),
+    0 0 20px rgba(16, 185, 129, 0.3),
+    inset 0 0 20px rgba(16, 185, 129, 0.2);
   transform: translateY(-1px);
 }
 
 .neon-bg {
   background: rgba(16, 185, 129, 0.1);
+}
+
+/* Content styles */
+.question-content {
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.question-content h1, 
+.question-content h2, 
+.question-content h3 {
+  color: var(--neon-primary);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+/* Table styling */
+.question-content table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--dark-surface);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.question-content th {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--neon-primary);
+  font-weight: 600;
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  padding: 1rem;
+}
+
+.question-content td {
+  padding: 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  color: var(--text-primary);
+}
+
+/* Image enhancements */
+.question-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  filter: brightness(1.1) contrast(1.2) invert(1) hue-rotate(180deg);
+  transition: all 0.3s ease;
+}
+
+.question-content img:hover {
+  filter: brightness(1.2) contrast(1.3) invert(1) hue-rotate(180deg);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
 }
 
 /* Cool animations */
@@ -45,14 +124,14 @@
 
 @keyframes glowPulse {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(16, 185, 129, 0.5),
-                0 0 10px rgba(16, 185, 129, 0.3),
-                0 0 15px rgba(16, 185, 129, 0.2);
+    box-shadow: 
+      0 0 10px rgba(16, 185, 129, 0.4),
+      inset 0 0 20px rgba(16, 185, 129, 0.1);
   }
   50% {
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6),
-                0 0 20px rgba(16, 185, 129, 0.4),
-                0 0 30px rgba(16, 185, 129, 0.3);
+    box-shadow: 
+      0 0 20px rgba(16, 185, 129, 0.6),
+      inset 0 0 30px rgba(16, 185, 129, 0.2);
   }
 }
 
@@ -66,34 +145,63 @@
 
 /* Apply neon theme to components */
 .card.neon-theme {
-  @apply neon-container;
+  background: var(--dark-surface);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  box-shadow: 
+    0 0 10px rgba(16, 185, 129, 0.1),
+    inset 0 0 20px rgba(16, 185, 129, 0.05);
 }
 
 .badge.neon-theme {
-  @apply neon-text neon-border;
+  color: var(--text-primary);
+  text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.2);
 }
 
 .button.neon-theme {
-  @apply neon-text neon-hover;
+  color: var(--text-primary);
+  text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+  transition: all 0.2s ease;
+}
+
+.button.neon-theme:hover {
+  border-color: var(--neon-primary);
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
 }
 
 /* Question display specific styles */
 .question-content {
-  @apply space-y-4;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .answer-option {
-  @apply relative p-4 rounded-lg border transition-all duration-200;
+  position: relative;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  transition: all 0.2s ease;
 }
 
 .answer-option:not(:disabled) {
-  @apply cursor-pointer;
+  cursor: pointer;
 }
 
 .answer-option.selected {
-  @apply neon-bg neon-border animate-glowPulse;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid var(--neon-primary);
+  animation: glowPulse 2s infinite;
 }
 
 .answer-option:hover:not(:disabled):not(.selected) {
-  @apply neon-hover;
+  border-color: var(--neon-primary);
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 
+    0 0 10px rgba(16, 185, 129, 0.6),
+    0 0 20px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
 }
