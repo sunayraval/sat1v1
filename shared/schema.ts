@@ -15,10 +15,15 @@ import { z } from "zod";
 // Question schema for SAT Duel
 export const questionSchema = z.object({
   id: z.string(),
-  question: z.string(),
-  choices: z.array(z.string()).length(4),
-  correct: z.number().min(0).max(3),
-  category: z.enum(["Math", "Reading", "Writing"]).optional(),
+  module: z.enum(["math", "reading", "writing"]),
+  difficulty: z.enum(["E", "M", "H"]).optional(), // Easy, Medium, Hard
+  skill_desc: z.string(),
+  content: z.object({
+    stem: z.string(),
+    answerOptions: z.array(z.string()),
+    correct_answer: z.array(z.string()),
+    rationale: z.string().optional(),
+  }),
 });
 
 export type Question = z.infer<typeof questionSchema>;
@@ -32,8 +37,10 @@ export const gameRoomSchema = z.object({
   // optional room configuration chosen by the creator
   config: z
     .object({
-      category: z.enum(["Math", "Reading", "Writing"]).optional(),
+      modules: z.array(z.enum(["math", "reading", "writing"])).optional(),
+      difficulties: z.array(z.enum(["E", "M", "H"])).optional(),
       numQuestions: z.number().min(1).optional(),
+      skills: z.array(z.string()).optional(),
     })
     .optional(),
 });

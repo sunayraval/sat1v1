@@ -62,21 +62,26 @@ export default function QuestionDisplay({
     <div className="w-full max-w-2xl mx-auto px-4">
       <Card>
         <CardHeader className="space-y-3">
-          {question.category && (
-            <Badge variant="outline" className="w-fit" data-testid="text-category">
-              {question.category}
+          <div className="flex gap-2">
+            <Badge variant="outline" className="w-fit capitalize" data-testid="text-module">
+              {question.module}
             </Badge>
-          )}
-          <h2 className="text-xl font-medium leading-relaxed" data-testid="text-question">
-            {question.question}
-          </h2>
+            {question.difficulty && (
+              <Badge variant="outline" className="w-fit" data-testid="text-difficulty">
+                {question.difficulty === 'E' ? 'Easy' : question.difficulty === 'M' ? 'Medium' : 'Hard'}
+              </Badge>
+            )}
+          </div>
+          <h2 className="text-xl font-medium leading-relaxed" data-testid="text-question" 
+              dangerouslySetInnerHTML={{ __html: question.content.stem }}
+          />
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {question.choices.map((choice, index) => {
+            {question.content.answerOptions.map((choice, index) => {
               const isSelected = localSelected === index;
-              const isCorrectAnswer = showResult && index === question.correct;
-              const isWrongAnswer = showResult && isSelected && index !== question.correct;
+              const isCorrectAnswer = showResult && question.content.correct_answer.includes(choice);
+              const isWrongAnswer = showResult && isSelected && !question.content.correct_answer.includes(choice);
 
               return (
                 <Button

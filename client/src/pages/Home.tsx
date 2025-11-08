@@ -70,14 +70,30 @@ export default function Home() {
     }
   }, [roomData?.scores, playerId, opponentId]);
 
-  // Build the questions list according to room config (category / numQuestions)
+  // Build the questions list according to room config (modules, difficulties, numQuestions)
   const questions = useMemo(() => {
-    const all = satQuestions;
-    const category = roomData?.config?.category;
+    const all = Object.values(satQuestions);
+    const modules = roomData?.config?.modules;
+    const difficulties = roomData?.config?.difficulties;
     const num = roomData?.config?.numQuestions;
+    
     let filtered = all;
-    if (category) filtered = all.filter((q) => q.category === category);
-    if (num && num > 0) filtered = filtered.slice(0, num);
+
+    if (modules && modules.length > 0) {
+      filtered = filtered.filter((q) => modules.includes(q.module));
+    }
+    
+    if (difficulties && difficulties.length > 0) {
+      filtered = filtered.filter((q) => q.difficulty && difficulties.includes(q.difficulty));
+    }
+
+    // Randomize the order
+    filtered = [...filtered].sort(() => Math.random() - 0.5);
+
+    if (num && num > 0) {
+      filtered = filtered.slice(0, num);
+    }
+
     return filtered.length > 0 ? filtered : all;
   }, [roomData?.config]);
 
@@ -113,11 +129,11 @@ export default function Home() {
     if (playerAnswer !== undefined && opponentAnswer !== undefined) {
       processedQuestionRef.current = currentQuestionIndex;
 
-  const currentQuestion = questions[currentQuestionIndex];
-      const playerCorrect = playerAnswer === currentQuestion.correct;
-      const opponentCorrect = opponentAnswer === currentQuestion.correct;
-
-      // Calculate new scores
+      const currentQuestion = questions[currentQuestionIndex];
+      const playerChoice = currentQuestion.content.answerOptions[playerAnswer];
+      const opponentChoice = currentQuestion.content.answerOptions[opponentAnswer];
+      const playerCorrect = currentQuestion.content.correct_answer.includes(playerChoice);
+      const opponentCorrect = currentQuestion.content.correct_answer.includes(opponentChoice);      // Calculate new scores
       const newPlayerScore = playerScore + (playerCorrect ? 1 : 0);
       const newOpponentScore = opponentScore + (opponentCorrect ? 1 : 0);
 

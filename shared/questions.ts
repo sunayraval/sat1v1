@@ -11,6 +11,22 @@
 import { Question } from "./schema";
 import questionsData from "./questions.json";
 
-// Load questions from JSON file
-// To update questions: edit shared/questions.json
-export const satQuestions: Question[] = questionsData as Question[];
+// Load questions from JSON file and transform to our Question format
+export const satQuestions: Record<string, Question> = Object.entries(questionsData).reduce((acc, [id, q]: [string, any]) => {
+  // Only include questions that match our schema
+  if (!q?.content?.stem || !q?.content?.answerOptions) return acc;
+
+  acc[id] = {
+    id,
+    module: q.module?.toLowerCase() || "math",
+    difficulty: q.difficulty,
+    skill_desc: q.skill_desc || "",
+    content: {
+      stem: q.content.stem,
+      answerOptions: q.content.answerOptions || [],
+      correct_answer: q.content.correct_answer || [],
+      rationale: q.content.rationale
+    }
+  };
+  return acc;
+}, {} as Record<string, Question>);
