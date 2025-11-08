@@ -49,6 +49,10 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     
     const unsubscribe = onValue(roomRef, (snapshot) => {
       const data = snapshot.val();
+      // Debug: log room updates to help trace white-screen runtime issues
+      // (kept at debug level so it can be filtered in production logs)
+      // eslint-disable-next-line no-console
+      console.debug("useGameRoom: room update ->", data);
       if (data) {
         setRoomData(data);
         setIsConnected(true);

@@ -110,6 +110,10 @@ export default function Home() {
   useEffect(() => {
     if (!roomData || gameState === "lobby") return;
 
+    // Debug log roomData to catch malformed updates that could cause render errors
+    // eslint-disable-next-line no-console
+    console.debug("Home: roomData ->", roomData);
+
     // Transition from waiting to playing when second player joins
     if (gameState === "waiting" && roomData.started && roomData.players?.length === 2) {
       setGameState("playing");
@@ -132,11 +136,15 @@ export default function Home() {
     if (playerAnswer !== undefined && opponentAnswer !== undefined) {
       processedQuestionRef.current = currentQuestionIndex;
 
-      const currentQuestion = questions[currentQuestionIndex];
+      const safeIndex = Math.max(0, Math.min(currentQuestionIndex, questions.length - 1));
+      const currentQuestion = questions[safeIndex];
+      if (!currentQuestion) return; // defensive
+
       const playerChoice = currentQuestion.content.answerOptions[playerAnswer];
       const opponentChoice = currentQuestion.content.answerOptions[opponentAnswer];
       const playerCorrect = currentQuestion.content.correct_answer.includes(playerChoice);
-      const opponentCorrect = currentQuestion.content.correct_answer.includes(opponentChoice);      // Calculate new scores
+      const opponentCorrect = currentQuestion.content.correct_answer.includes(opponentChoice);
+      // Calculate new scores
       const newPlayerScore = playerScore + (playerCorrect ? 1 : 0);
       const newOpponentScore = opponentScore + (opponentCorrect ? 1 : 0);
 
