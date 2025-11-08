@@ -75,6 +75,14 @@ export default function Home() {
 
   // Build the questions list according to room config (modules, difficulties, numQuestions)
   const questions = useMemo(() => {
+    // If the room has a persisted question order, use it so all players see the same questions
+    if (roomData?.questions && Array.isArray(roomData.questions) && roomData.questions.length > 0) {
+      const byId = new Map(Object.values(satQuestions).map((q) => [q.id, q]));
+      const mapped = roomData.questions.map((id) => byId.get(id)).filter(Boolean) as typeof satQuestions;
+      if (mapped.length > 0) return mapped;
+    }
+
+    // Fallback: build list from config (used when no questions were persisted)
     const all = Object.values(satQuestions);
     const modules = roomData?.config?.modules;
     const difficulties = roomData?.config?.difficulties;
@@ -90,7 +98,7 @@ export default function Home() {
       filtered = filtered.filter((q) => q.difficulty && difficulties.includes(q.difficulty));
     }
 
-    // Randomize the order
+    // Randomize the order (this only runs when no persisted questions exist)
     filtered = [...filtered].sort(() => Math.random() - 0.5);
 
     if (num && num > 0) {

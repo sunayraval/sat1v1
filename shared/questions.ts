@@ -32,6 +32,12 @@ function transformQuestion(id: string, raw: RawQuestion): Question | null {
   // Normalize answerOptions: some items are objects {id, content} — extract content HTML
   if (answerOptions && answerOptions.length > 0 && typeof answerOptions[0] === "object") {
     answerOptions = (answerOptions as any[]).map((opt) => opt?.content ?? String(opt));
+    // Clean up common artifacts where options are prefixed with a letter and newline (e.g. "B\n<p>...</p>")
+    answerOptions = answerOptions.map((s) => {
+      if (typeof s !== "string") return String(s);
+      // remove leading single-letter labels like 'A', 'B', 'C', 'D' followed by newline or punctuation
+      return s.replace(/^\s*[A-Da-d](?:\.|\)|:)?\s*[\r\n]+/, "").trim();
+    });
   }
 
   let correct_answer = raw.content.correct_answer && raw.content.correct_answer.length

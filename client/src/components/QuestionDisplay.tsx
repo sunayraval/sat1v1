@@ -92,7 +92,7 @@ export default function QuestionDisplay({
                   onClick={() => handleSelect(index)}
                   disabled={localSelected !== undefined || isWaiting}
                   variant={isSelected ? "default" : "outline"}
-                  className={`h-auto min-h-[4rem] p-4 justify-start text-left hover-elevate active-elevate-2 ${
+                  className={`w-full h-auto min-h-[4rem] p-4 justify-start text-left hover-elevate active-elevate-2 ${
                     isCorrectAnswer ? "border-2 border-green-500" : ""
                   } ${isWrongAnswer ? "border-2 border-destructive" : ""}`}
                 >
@@ -103,7 +103,7 @@ export default function QuestionDisplay({
                     >
                       {CHOICE_LABELS[index]}
                     </Badge>
-                    <span className="flex-1">{choice}</span>
+                    <span className="flex-1 prose-sm" dangerouslySetInnerHTML={{ __html: String(choice) }} />
                     {showResult && isCorrectAnswer && (
                       <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
                     )}

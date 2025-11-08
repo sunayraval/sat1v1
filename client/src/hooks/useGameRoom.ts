@@ -35,7 +35,9 @@ interface GameRoomData {
     difficulties?: Array<"E" | "M" | "H">;
     numQuestions?: number;
   };
+  questions?: string[];
 }
+import { satQuestions } from "@shared/questions";
 
 export function useGameRoom(roomId: string | null, playerId: string) {
   const [roomData, setRoomData] = useState<GameRoomData | null>(null);
@@ -75,12 +77,45 @@ export function useGameRoom(roomId: string | null, playerId: string) {
 
     try {
       const roomRef = ref(database, `rooms/${roomCode}`);
+      // If a creator provided config, select and persist the question list now so all players
+      // see the same questions in the same order. Selection happens only when creating the room.
+      let questionIds: string[] | undefined = undefined;
+      try {
+        const all = (Array.isArray(satQuestions) ? satQuestions : Object.values(satQuestions as any)) as any[];
+        let filtered: any[] = all;
+
+        const modules = config?.modules;
+        const difficulties = config?.difficulties;
+        const num = config?.numQuestions;
+
+        if (modules && modules.length > 0) {
+          filtered = filtered.filter((q) => modules.includes(q.module));
+        }
+        if (difficulties && difficulties.length > 0) {
+          filtered = filtered.filter((q) => q.difficulty && difficulties.includes(q.difficulty));
+        }
+
+        // Randomize order on room creation only
+        filtered = [...filtered].sort(() => Math.random() - 0.5);
+
+        if (num && num > 0) {
+          filtered = filtered.slice(0, num);
+        }
+
+        if (filtered.length > 0) {
+          questionIds = filtered.map((q) => q.id);
+        }
+      } catch (err) {
+        console.error("Error selecting questions for room:", err);
+      }
+
       await set(roomRef, {
         currentQuestion: 0,
         started: false,
         players: [playerId],
         scores: { [playerId]: 0 },
         config: config || undefined,
+        questions: questionIds || undefined,
       });
       return true;
     } catch (error) {
