@@ -1,0 +1,38 @@
+.scoreboard-container {
+  background-color: var(--dark-surface);
+  border: 1px solid var(--neon-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 
+    0 0 15px var(--neon-glow),
+    inset 0 0 20px rgba(16, 185, 129, 0.05);
+  color: var(--text-primary);
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--neon-border);
+  background-color: var(--dark-surface);
+  transition: all 0.3s ease;
+}
+
+.score-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--neon-primary);
+  text-shadow: 0 0 10px var(--neon-glow);
+}
+
+.player-name {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.score-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}

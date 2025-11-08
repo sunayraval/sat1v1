@@ -13,6 +13,18 @@
 }
 
 /* Base dark theme */
+body {
+  background-color: var(--dark-bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+.home-container {
+  background-color: var(--dark-bg);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
 .neon-container {
   background: var(--dark-surface);
   backdrop-filter: blur(12px);
@@ -63,7 +75,8 @@
 /* Content styles */
 .question-content {
   color: var(--text-primary);
-  line-height: 1.6;
+  line-height: 1.8;
+  font-size: 1.1rem;
 }
 
 .question-content h1, 
@@ -71,6 +84,39 @@
 .question-content h3 {
   color: var(--neon-primary);
   text-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.question-text {
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.answer-options {
+  display: grid;
+  gap: 1rem;
+}
+
+.answer-option {
+  background-color: var(--dark-surface);
+  border: 1px solid var(--neon-border);
+  color: var(--text-primary);
+  padding: 1.25rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-size: 1.1rem;
+}
+
+.answer-option:hover:not(:disabled):not(.selected):not(.answer-correct):not(.answer-wrong) {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 15px var(--neon-glow);
+  transform: translateY(-2px);
 }
 
 /* Table styling */
@@ -105,13 +151,24 @@
   height: auto;
   border-radius: 8px;
   border: 1px solid rgba(16, 185, 129, 0.2);
-  filter: brightness(1.1) contrast(1.2) invert(1) hue-rotate(180deg);
   transition: all 0.3s ease;
 }
 
+/* Dark image detection and handling */
+@media (prefers-color-scheme: dark) {
+  .question-content img {
+    filter: brightness(1.1) contrast(1.2);
+  }
+  
+  /* Apply invert only to dark images */
+  .question-content img[data-theme="dark"] {
+    filter: brightness(1.1) contrast(1.2) invert(1) hue-rotate(180deg);
+  }
+}
+
 .question-content img:hover {
-  filter: brightness(1.2) contrast(1.3) invert(1) hue-rotate(180deg);
   box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  transform: scale(1.02);
 }
 
 /* Cool animations */

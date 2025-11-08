@@ -90,12 +90,26 @@ export default function Home() {
     
     let filtered = all;
 
+    // If no modules selected, use all modules
     if (modules && modules.length > 0) {
-      filtered = filtered.filter((q) => modules.includes(q.module));
+      filtered = filtered.filter((q) => {
+        const questionModule = q.module.toLowerCase();
+        return modules.some(m => m.toLowerCase() === questionModule);
+      });
     }
     
     if (difficulties && difficulties.length > 0) {
       filtered = filtered.filter((q) => q.difficulty && difficulties.includes(q.difficulty));
+    }
+
+    // Ensure we have enough questions, if not, add more from other modules
+    if (filtered.length < (num || 10)) {
+      const remainingCount = (num || 10) - filtered.length;
+      const otherQuestions = all
+        .filter(q => !filtered.includes(q))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, remainingCount);
+      filtered = [...filtered, ...otherQuestions];
     }
 
     // Randomize the order (this only runs when no persisted questions exist)

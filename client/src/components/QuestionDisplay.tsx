@@ -14,12 +14,13 @@
   - isWaiting: displays an animated waiting indicator while opponent answers
   - showResult / isCorrect: used to show correct/incorrect feedback
 */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Loader2 } from "lucide-react";
 import { Question } from "@shared/schema";
+import { setupImageThemeDetection } from "@/lib/utils/imageTheme";
 import "@/styles/neon.css";
 import "@/styles/questions.css";
 import "@/styles/question-display.css";
@@ -56,6 +57,14 @@ export default function QuestionDisplay({
   useEffect(() => {
     setLocalSelected(undefined);
   }, [question.id]);
+
+  // Set up image theme detection when question content changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setupImageThemeDetection();
+    }, 100); // Small delay to ensure images are loaded
+    return () => clearTimeout(timer);
+  }, [question.content.stem]);
 
   const handleSelect = (index: number) => {
     if (localSelected !== undefined || isWaiting) return;

@@ -1,0 +1,65 @@
+/* Dark theme customization */
+:root {
+  --background: rgb(9, 9, 11);
+  --card-background: rgba(24, 24, 27, 0.95);
+  --card-border: rgba(16, 185, 129, 0.2);
+  --text-primary: rgb(250, 250, 250);
+  --text-secondary: rgb(200, 250, 200);
+  --neon-glow: rgba(16, 185, 129, 0.3);
+  --neon-primary: rgb(16, 185, 129);
+  --neon-border: rgba(16, 185, 129, 0.2);
+}
+
+/* Dark mode styles */
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
+.card {
+  background-color: var(--card-background);
+  border-color: var(--card-border);
+  box-shadow: 0 0 20px var(--neon-glow);
+}
+
+/* Question text styling */
+.question-text {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* Answer options styling */
+.answer-option {
+  color: var(--text-primary);
+  border-color: var(--neon-border);
+  background-color: var(--card-background);
+  transition: all 0.3s ease;
+}
+
+.answer-option:hover:not(:disabled) {
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 15px var(--neon-glow);
+}
+
+/* Menu and scoreboard styling */
+.score-display {
+  color: var(--text-primary);
+  background-color: var(--card-background);
+  border-color: var(--neon-border);
+  box-shadow: 0 0 15px var(--neon-glow);
+}
+
+/* Images in questions */
+.question-content img {
+  filter: invert(1) hue-rotate(180deg) saturate(0.8) brightness(1.2);
+  border: 1px solid var(--neon-border);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.question-content img:hover {
+  filter: invert(1) hue-rotate(180deg) saturate(1) brightness(1.4);
+  box-shadow: 0 0 20px var(--neon-glow);
+}
