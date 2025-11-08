@@ -29,7 +29,10 @@ interface GameRoomData {
   answers?: Record<string, number>;
   scores?: Record<string, number>;
   config?: {
+    // allow either a legacy single-category or the new multi-module config
     category?: "Math" | "Reading" | "Writing";
+    modules?: Array<"math" | "reading" | "writing">;
+    difficulties?: Array<"E" | "M" | "H">;
     numQuestions?: number;
   };
 }
@@ -60,7 +63,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
   }, [roomId]);
 
   // Create a new room with the current player as the first participant
-  const createRoom = useCallback(async (roomCode: string, config?: { category?: string; numQuestions?: number }) => {
+  const createRoom = useCallback(async (roomCode: string, config?: { category?: string; modules?: string[]; difficulties?: string[]; numQuestions?: number }) => {
     if (!database) {
       console.error("Firebase not initialized");
       return false;

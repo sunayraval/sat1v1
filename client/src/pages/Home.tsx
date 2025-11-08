@@ -24,6 +24,8 @@ import WaitingRoom from "@/components/WaitingRoom";
 import ScoreBoard from "@/components/ScoreBoard";
 import QuestionDisplay from "@/components/QuestionDisplay";
 import GameOver from "@/components/GameOver";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { GameState } from "@shared/schema";
 import { satQuestions } from "@shared/questions";
 import { useGameRoom } from "@/hooks/useGameRoom";
@@ -96,8 +98,6 @@ export default function Home() {
     }
 
     return filtered.length > 0 ? filtered : all;
-      const mappedQuestions = filtered.map(([_, q]) => q);
-      return mappedQuestions.length > 0 ? mappedQuestions : Object.values(satQuestions);
   }, [roomData?.config]);
 
   // Reset selected answer when question changes
@@ -255,6 +255,23 @@ export default function Home() {
 
   // Playing state
   const isWaiting = selectedAnswer !== undefined && !roomData?.answers?.[opponentId || ""];
+  // Defensive: ensure we have at least one question and the index is valid
+  if (!questions || questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-background py-8 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg font-semibold">No questions available for this room configuration.</p>
+          <p className="text-sm text-muted-foreground">Try changing the room settings or creating a new room.</p>
+          <div className="mt-4">
+            <Button variant="outline" onClick={handleNewRoom}>Leave Room</Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const safeIndex = Math.max(0, Math.min(currentQuestionIndex, questions.length - 1));
+  const currentQuestion = questions[safeIndex];
 
   return (
     <div className="min-h-screen bg-background py-8 space-y-6">
@@ -264,26 +281,24 @@ export default function Home() {
       <ScoreBoard
         playerScore={playerScore}
         opponentScore={opponentScore}
-        currentQuestion={currentQuestionIndex + 1}
+        currentQuestion={safeIndex + 1}
         totalQuestions={questions.length}
       />
       <QuestionDisplay
-        question={questions[currentQuestionIndex]}
+        question={currentQuestion}
         onAnswer={handleAnswer}
         selectedAnswer={selectedAnswer}
         isWaiting={isWaiting}
         showExplanation={showExplanation}
       />
-      {showExplanation && questions[currentQuestionIndex].content.rationale && (
+      {showExplanation && currentQuestion.content.rationale && (
         <div className="max-w-2xl mx-auto px-4 mt-4">
           <Card>
             <CardContent className="pt-4">
               <h3 className="font-semibold mb-2">Explanation:</h3>
               <div 
                 className="prose prose-sm max-w-none" 
-                dangerouslySetInnerHTML={{ 
-                  __html: questions[currentQuestionIndex].content.rationale 
-                }} 
+                dangerouslySetInnerHTML={{ __html: currentQuestion.content.rationale }} 
               />
             </CardContent>
           </Card>
