@@ -36,3 +36,14 @@
   color: var(--text-secondary);
   font-size: 0.9rem;
 }
+
+.scoreboard-card {
+  background-color: var(--dark-surface) !important;
+  border: 1px solid var(--neon-border) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 12px var(--neon-glow) !important;
+}
+
+.scoreboard-card .text-muted-foreground {
+  color: var(--text-secondary) !important;
+}

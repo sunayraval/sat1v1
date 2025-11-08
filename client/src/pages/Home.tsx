@@ -38,6 +38,8 @@ export default function Home() {
   const [playerScore, setPlayerScore] = useState(0);
   const [opponentScore, setOpponentScore] = useState(0);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [lastRoundResult, setLastRoundResult] = useState<{ playerCorrect: boolean; opponentCorrect: boolean } | null>(null);
   const { toast } = useToast();
   const processedQuestionRef = useRef<number>(-1);
 
@@ -60,6 +62,13 @@ export default function Home() {
     leaveRoom,
     setScores,
   } = useGameRoom(gameState === "lobby" ? null : roomCode, playerId);
+
+  // Compute supported modules from available questions so default config doesn't include unsupported modules
+  const supportedModules = useMemo(() => {
+    const set = new Set<string>();
+    Object.values(satQuestions).forEach((q) => set.add((q.module || "").toLowerCase()));
+    return Array.from(set).filter(Boolean);
+  }, []);
 
   // Determine which question the room is currently on and the opponent's id
   const currentQuestionIndex = roomData?.currentQuestion || 0;
@@ -126,6 +135,8 @@ export default function Home() {
   useEffect(() => {
     setSelectedAnswer(undefined);
     processedQuestionRef.current = -1;
+    setShowResult(false);
+    setLastRoundResult(null);
   }, [currentQuestionIndex]);
 
   // Handle game state transitions
@@ -170,9 +181,13 @@ export default function Home() {
       const newPlayerScore = playerScore + (playerCorrect ? 1 : 0);
       const newOpponentScore = opponentScore + (opponentCorrect ? 1 : 0);
 
-      // Update local scores
+  // Update local scores
       setPlayerScore(newPlayerScore);
       setOpponentScore(newOpponentScore);
+
+  // Show result to the user before moving on
+  setLastRoundResult({ playerCorrect, opponentCorrect });
+  setShowResult(true);
 
       // Persist scores to the room so both clients stay in sync
       try {
@@ -186,21 +201,24 @@ export default function Home() {
         // ignore - setScores logs errors
       }
 
-      // Move to next question or end game after delay
+      // Move to next question or end game after delay (give user time to see the correct answer)
       setTimeout(() => {
+        setShowResult(false);
+        setLastRoundResult(null);
         if (currentQuestionIndex < questions.length - 1) {
           nextQuestion(roomCode, currentQuestionIndex + 1);
         } else {
           setGameState("gameover");
         }
-      }, 2000);
+      }, 3000);
     }
   }, [roomData?.answers, gameState, currentQuestionIndex, playerId, opponentId, playerScore, opponentScore, roomCode, nextQuestion]);
 
   const handleCreateRoom = async (code: string, config?: { modules?: string[]; difficulties?: string[]; numQuestions?: number }) => {
     try {
       const formattedConfig = {
-        modules: config?.modules || ["math", "reading", "writing"],
+        // If the caller supplied modules, use them; otherwise default to supported modules (usually math)
+        modules: config?.modules || supportedModules || ["math"],
         difficulties: config?.difficulties || ["E", "M", "H"],
         numQuestions: config?.numQuestions || 10
       };
@@ -332,6 +350,8 @@ export default function Home() {
         selectedAnswer={selectedAnswer}
         isWaiting={isWaiting}
         showExplanation={showExplanation}
+        showResult={showResult}
+        isCorrect={lastRoundResult?.playerCorrect ?? false}
       />
       {showExplanation && currentQuestion.content.rationale && (
         <div className="max-w-2xl mx-auto px-4 mt-4 animate-fadeIn">

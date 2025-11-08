@@ -10,11 +10,13 @@
   Keep changes here light-weight — the heavy lifting is in Home.tsx and
   useGameRoom hook which perform the network/database work.
 */
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy } from "lucide-react";
+import { satQuestions } from "@shared/questions";
+import { useToast } from "@/hooks/use-toast";
 
 interface GameLobbyProps {
   onCreateRoom: (roomCode: string, config?: { 
@@ -33,6 +35,15 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
   const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([]);
   const [numQuestions, setNumQuestions] = useState<number>(10);
 
+  const { toast } = useToast();
+
+  // Compute supported modules from available questions so we don't offer modules with no data
+  const supportedModules = useMemo(() => {
+    const set = new Set<string>();
+    Object.values(satQuestions).forEach((q) => set.add((q.module || "").toLowerCase()));
+    return Array.from(set).filter(Boolean);
+  }, []);
+
   const handleCreateRoom = () => {
     const code = roomCode || Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     setError("");
@@ -42,7 +53,16 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
       numQuestions?: number;
       skills?: string[];
     } = {};
-    if (selectedModules.length > 0) config.modules = selectedModules;
+    // Validate selected modules: do not allow creating rooms with unsupported modules
+    if (selectedModules.length > 0) {
+      const invalid = selectedModules.filter(m => !supportedModules.includes(m.toLowerCase()));
+      if (invalid.length > 0) {
+        // show toast and stop
+        toast({ title: "Unsupported module", description: `Module(s) not available: ${invalid.join(", ")}`, variant: "destructive" });
+        return;
+      }
+      config.modules = selectedModules;
+    }
     if (selectedDifficulties.length > 0) config.difficulties = selectedDifficulties;
     if (numQuestions && Number.isFinite(numQuestions)) config.numQuestions = numQuestions;
     onCreateRoom(code, config);
@@ -57,9 +77,11 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
     onJoinRoom(roomCode);
   };
 
+  const invalidSelectedModules = selectedModules.filter(m => !supportedModules.includes(m.toLowerCase()));
+
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center p-4 home-container">
+      <Card className="w-full max-w-md neon-container">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center mb-2">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -87,22 +109,26 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
               <div>
                 <label className="text-sm text-muted-foreground mb-1 block">Modules</label>
                 <div className="space-y-1">
-                  {["math", "reading", "writing"].map(module => (
-                    <label key={module} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={selectedModules.includes(module)}
-                        onChange={(e) => {
-                          setSelectedModules(prev => 
-                            e.target.checked 
-                              ? [...prev, module]
-                              : prev.filter(m => m !== module)
-                          );
-                        }}
-                      />
-                      <span className="capitalize">{module}</span>
-                    </label>
-                  ))}
+                  {supportedModules.length > 0 ? (
+                    supportedModules.map((module) => (
+                      <label key={module} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedModules.includes(module)}
+                          onChange={(e) => {
+                            setSelectedModules(prev => 
+                              e.target.checked 
+                                ? [...prev, module]
+                                : prev.filter(m => m !== module)
+                            );
+                          }}
+                        />
+                        <span className="capitalize">{module}</span>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground">No modules available</p>
+                  )}
                 </div>
               </div>
 
@@ -156,6 +182,7 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
               onClick={handleCreateRoom}
               size="lg"
               className="h-12"
+              disabled={invalidSelectedModules.length > 0}
             >
               Create Room
             </Button>

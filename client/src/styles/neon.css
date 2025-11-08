@@ -79,6 +79,13 @@ body {
   font-size: 1.1rem;
 }
 
+/* Prose content (markdown/html) can add its own color rules; force readable color */
+.question-content.prose,
+.question-content.prose-sm,
+.question-content.prose * {
+  color: var(--text-primary) !important;
+}
+
 .question-content h1, 
 .question-content h2, 
 .question-content h3 {

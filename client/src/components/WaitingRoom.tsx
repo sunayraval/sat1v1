@@ -34,9 +34,9 @@ export default function WaitingRoom({ roomCode, onCancel }: WaitingRoomProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center space-y-4">
+    <div className="min-h-screen flex items-center justify-center p-4 home-container">
+      <Card className="w-full max-w-md neon-container">
+  <CardHeader className="text-center space-y-4 neon-text">
           <div className="flex justify-center">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
               <Users className="w-8 h-8 text-primary" />
@@ -47,7 +47,7 @@ export default function WaitingRoom({ roomCode, onCancel }: WaitingRoomProps) {
             Share the room code with your opponent to start the duel
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+  <CardContent className="space-y-6">
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground text-center">Room Code</p>
             <div className="flex items-center gap-2">
