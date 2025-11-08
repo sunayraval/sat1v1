@@ -35,27 +35,12 @@ const CHOICE_LABELS = ["A", "B", "C", "D"];
 
 export default function QuestionDisplay({
   question,
-        isWaiting={isWaiting}
-        showExplanation={showExplanation}
+  onAnswer,
   selectedAnswer,
-      {showExplanation && question.content.rationale && (
-        <div className="max-w-2xl mx-auto px-4 mt-4">
-          <Card>
-            <CardContent className="pt-4">
-              <h3 className="font-semibold mb-2">Explanation:</h3>
-              <div 
-                className="prose prose-sm max-w-none" 
-                dangerouslySetInnerHTML={{ 
-                  __html: question.content.rationale 
-                }} 
-              />
-            </CardContent>
-          </Card>
-        </div>
-      )}
   isWaiting = false,
   showResult = false,
   isCorrect = false,
+  showExplanation = false,
 }: QuestionDisplayProps) {
   const [localSelected, setLocalSelected] = useState<number | undefined>(selectedAnswer);
 
@@ -150,6 +135,20 @@ export default function QuestionDisplay({
               >
                 {isCorrect ? "Correct! ✓" : "Incorrect ✗"}
               </p>
+            </div>
+          )}
+
+          {showExplanation && question.content.rationale && (
+            <div className="max-w-2xl mx-auto px-4 mt-4">
+              <Card>
+                <CardContent className="pt-4">
+                  <h3 className="font-semibold mb-2">Explanation:</h3>
+                  <div
+                    className="prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: question.content.rationale }}
+                  />
+                </CardContent>
+              </Card>
             </div>
           )}
         </CardContent>
