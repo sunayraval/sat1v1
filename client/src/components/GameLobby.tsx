@@ -17,18 +17,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Trophy } from "lucide-react";
 
 interface GameLobbyProps {
-  onCreateRoom: (roomCode: string) => void;
+  onCreateRoom: (roomCode: string, config?: { category?: string; numQuestions?: number }) => void;
   onJoinRoom: (roomCode: string) => void;
 }
 
 export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) {
   const [roomCode, setRoomCode] = useState("");
   const [error, setError] = useState("");
+  const [category, setCategory] = useState<string>("");
+  const [numQuestions, setNumQuestions] = useState<number>(10);
 
   const handleCreateRoom = () => {
     const code = roomCode || Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     setError("");
-    onCreateRoom(code);
+    const config: { category?: string; numQuestions?: number } = {};
+    if (category) config.category = category;
+    if (numQuestions && Number.isFinite(numQuestions)) config.numQuestions = numQuestions;
+    onCreateRoom(code, config);
   };
 
   const handleJoinRoom = () => {
@@ -66,6 +71,28 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
               }}
               className="h-12 text-center text-lg"
             />
+            <div className="flex gap-2 mt-2">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="rounded-md border px-2 py-2"
+                data-testid="select-category"
+              >
+                <option value="">Any</option>
+                <option value="Math">Math</option>
+                <option value="Reading">Reading</option>
+                <option value="Writing">Writing</option>
+              </select>
+
+              <input
+                type="number"
+                min={1}
+                value={numQuestions}
+                onChange={(e) => setNumQuestions(Number(e.target.value))}
+                className="w-28 rounded-md border px-2 py-2 text-center"
+                data-testid="input-num-questions"
+              />
+            </div>
             {error && (
               <p className="text-sm text-destructive text-center" data-testid="text-error">
                 {error}

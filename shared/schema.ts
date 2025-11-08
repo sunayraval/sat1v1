@@ -29,6 +29,13 @@ export const gameRoomSchema = z.object({
   currentQuestion: z.number(),
   started: z.boolean(),
   players: z.array(z.string()),
+  // optional room configuration chosen by the creator
+  config: z
+    .object({
+      category: z.enum(["Math", "Reading", "Writing"]).optional(),
+      numQuestions: z.number().min(1).optional(),
+    })
+    .optional(),
 });
 
 export type GameRoom = z.infer<typeof gameRoomSchema>;

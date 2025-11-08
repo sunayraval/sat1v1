@@ -55,6 +55,7 @@ export default function Home() {
     submitAnswer,
     nextQuestion,
     leaveRoom,
+    setScores,
   } = useGameRoom(gameState === "lobby" ? null : roomCode, playerId);
 
   // Determine which question the room is currently on and the opponent's id
@@ -68,6 +69,17 @@ export default function Home() {
       setOpponentScore(roomData.scores[opponentId || ""] || 0);
     }
   }, [roomData?.scores, playerId, opponentId]);
+
+  // Build the questions list according to room config (category / numQuestions)
+  const questions = useMemo(() => {
+    const all = satQuestions;
+    const category = roomData?.config?.category;
+    const num = roomData?.config?.numQuestions;
+    let filtered = all;
+    if (category) filtered = all.filter((q) => q.category === category);
+    if (num && num > 0) filtered = filtered.slice(0, num);
+    return filtered.length > 0 ? filtered : all;
+  }, [roomData?.config]);
 
   // Reset selected answer when question changes
   useEffect(() => {
@@ -101,7 +113,7 @@ export default function Home() {
     if (playerAnswer !== undefined && opponentAnswer !== undefined) {
       processedQuestionRef.current = currentQuestionIndex;
 
-      const currentQuestion = satQuestions[currentQuestionIndex];
+  const currentQuestion = questions[currentQuestionIndex];
       const playerCorrect = playerAnswer === currentQuestion.correct;
       const opponentCorrect = opponentAnswer === currentQuestion.correct;
 
@@ -113,9 +125,21 @@ export default function Home() {
       setPlayerScore(newPlayerScore);
       setOpponentScore(newOpponentScore);
 
+      // Persist scores to the room so both clients stay in sync
+      try {
+        if (setScores) {
+          const toUpdate: Record<string, number> = {};
+          toUpdate[playerId] = newPlayerScore;
+          if (opponentId) toUpdate[opponentId] = newOpponentScore;
+          setScores(roomCode, toUpdate);
+        }
+      } catch (err) {
+        // ignore - setScores logs errors
+      }
+
       // Move to next question or end game after delay
       setTimeout(() => {
-        if (currentQuestionIndex < satQuestions.length - 1) {
+        if (currentQuestionIndex < questions.length - 1) {
           nextQuestion(roomCode, currentQuestionIndex + 1);
         } else {
           setGameState("gameover");
@@ -124,8 +148,8 @@ export default function Home() {
     }
   }, [roomData?.answers, gameState, currentQuestionIndex, playerId, opponentId, playerScore, opponentScore, roomCode, nextQuestion]);
 
-  const handleCreateRoom = async (code: string) => {
-    const success = await createRoom(code);
+  const handleCreateRoom = async (code: string, config?: { category?: string; numQuestions?: number }) => {
+    const success = await createRoom(code, config);
     if (success) {
       setRoomCode(code);
       setGameState("waiting");
@@ -219,10 +243,10 @@ export default function Home() {
         playerScore={playerScore}
         opponentScore={opponentScore}
         currentQuestion={currentQuestionIndex + 1}
-        totalQuestions={satQuestions.length}
+        totalQuestions={questions.length}
       />
       <QuestionDisplay
-        question={satQuestions[currentQuestionIndex]}
+        question={questions[currentQuestionIndex]}
         onAnswer={handleAnswer}
         selectedAnswer={selectedAnswer}
         isWaiting={isWaiting}

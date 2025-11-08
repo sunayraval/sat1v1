@@ -28,6 +28,10 @@ interface GameRoomData {
   players: string[];
   answers?: Record<string, number>;
   scores?: Record<string, number>;
+  config?: {
+    category?: "Math" | "Reading" | "Writing";
+    numQuestions?: number;
+  };
 }
 
 export function useGameRoom(roomId: string | null, playerId: string) {
@@ -56,7 +60,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
   }, [roomId]);
 
   // Create a new room with the current player as the first participant
-  const createRoom = useCallback(async (roomCode: string) => {
+  const createRoom = useCallback(async (roomCode: string, config?: { category?: string; numQuestions?: number }) => {
     if (!database) {
       console.error("Firebase not initialized");
       return false;
@@ -69,6 +73,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
         started: false,
         players: [playerId],
         scores: { [playerId]: 0 },
+        config: config || undefined,
       });
       return true;
     } catch (error) {
@@ -157,6 +162,18 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     }
   }, []);
 
+  // Update one or more player scores (merges into the existing scores map)
+  const setScores = useCallback(async (roomCode: string, scoresObj: Record<string, number>) => {
+    if (!database) return;
+
+    try {
+      const scoresRef = ref(database, `rooms/${roomCode}/scores`);
+      await update(scoresRef, scoresObj);
+    } catch (error) {
+      console.error("Error updating scores:", error);
+    }
+  }, []);
+
   return {
     roomData,
     isConnected,
@@ -165,5 +182,6 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     submitAnswer,
     nextQuestion,
     leaveRoom,
+    setScores,
   };
 }
