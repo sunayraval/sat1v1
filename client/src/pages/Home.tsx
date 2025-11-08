@@ -304,7 +304,8 @@ export default function Home() {
       <GameOver
         playerScore={playerScore}
         opponentScore={opponentScore}
-        totalQuestions={satQuestions.length}
+        // Use the actual quiz length (questions selected for this room) instead
+        totalQuestions={questions.length}
         onPlayAgain={handlePlayAgain}
         onNewRoom={handleNewRoom}
       />

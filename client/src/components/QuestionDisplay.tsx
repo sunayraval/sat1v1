@@ -92,9 +92,17 @@ export default function QuestionDisplay({
               </div>
             )}
           </div>
-          <div className="question-content prose dark:prose-invert max-w-none" data-testid="text-question" 
-              dangerouslySetInnerHTML={{ __html: question.content.stem }}
-          />
+          <div className="question-content prose dark:prose-invert max-w-none" data-testid="text-question">
+            {/* Render stimulus (passage/figure) first when present, then the stem */}
+            {question.content.stimulus && (
+              <div
+                className="question-stimulus prose-sm max-w-none mb-4"
+                dangerouslySetInnerHTML={{ __html: question.content.stimulus }}
+              />
+            )}
+
+            <div className="question-stem" dangerouslySetInnerHTML={{ __html: question.content.stem }} />
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

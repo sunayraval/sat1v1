@@ -11,6 +11,12 @@ import rawQuestionsData from "./questions.json";
 interface RawQuestion {
   content: {
     stem: string;
+    // Many source items use `prompt`, `body`, or `stimulus_reference` to hold
+    // passage/context content. Include them to allow extraction.
+    prompt?: string;
+    body?: string;
+    stimulus_reference?: string;
+    stimulus?: string;
     answerOptions?: string[];
     correct_answer?: string[];
     keys?: string[];
@@ -23,8 +29,11 @@ interface RawQuestion {
 }
 
 function transformQuestion(id: string, raw: RawQuestion): Question | null {
-  if (!raw?.content?.stem) return null;
-  
+  // There are several possible fields where stimulus/prompt data may live
+  // Accept `stem`, `prompt`, or `body` as the question stem; prefer `stem` when present.
+  const stemHtml = raw?.content?.stem || raw?.content?.prompt || raw?.content?.body || "";
+  if (!stemHtml) return null;
+
   // Normalize module to lowercase for consistent filtering
   const module = raw.module?.toLowerCase() || "math";
   const difficulty = raw.difficulty || "M";
@@ -78,13 +87,19 @@ function transformQuestion(id: string, raw: RawQuestion): Question | null {
 
   if (answerOptions.length === 0) return null; // skip free-response items
 
+  // Extract stimulus (passage/figure/table) if present. Many items use `body`,
+  // `stimulus_reference` or `prompt` to carry the passage. We preserve that
+  // as `stimulus` so the UI can show it before the stem.
+  const stimulusHtml = raw.content?.body ?? raw.content?.stimulus_reference ?? raw.content?.stimulus ?? null;
+
   return {
     id,
     module: (raw.module?.toLowerCase() as any) || "math",
     difficulty: (raw.difficulty as any) || "M",
     skill_desc: raw.skill_desc || "",
     content: {
-      stem: raw.content.stem,
+      stem: String(stemHtml),
+      stimulus: stimulusHtml ? String(stimulusHtml) : undefined,
       answerOptions,
       correct_answer,
       rationale: raw.content.rationale || ""

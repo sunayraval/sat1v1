@@ -20,6 +20,8 @@ export const questionSchema = z.object({
   skill_desc: z.string().optional(),
   content: z.object({
     stem: z.string(),
+    // Optional stimulus/passages/images that should be shown before the stem
+    stimulus: z.string().optional(),
     answerOptions: z.array(z.string()),
     correct_answer: z.array(z.string()),
     rationale: z.string().optional(),

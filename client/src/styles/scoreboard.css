@@ -47,3 +47,20 @@
 .scoreboard-card .text-muted-foreground {
   color: var(--text-secondary) !important;
 }
+
+/* Ensure icons and images in scoreboard are visible on dark background */
+.scoreboard-card svg {
+  color: var(--text-primary) !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+}
+
+.scoreboard-card img {
+  /* invert dark raster assets so they appear light on dark backgrounds */
+  filter: invert(1) brightness(1.6) !important;
+}
+
+.scoreboard-container svg {
+  color: var(--text-primary) !important;
+  stroke: currentColor !important;
+}
