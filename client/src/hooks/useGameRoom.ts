@@ -48,6 +48,48 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     if (!roomId || !database) return;
 
     const roomRef = ref(database, `rooms/${roomId}`);
+    let cleanupFn: (() => void) | undefined;
+
+    const setupRoom = async () => {
+      try {
+        // Subscribe to room changes
+        const unsub = onValue(roomRef, (snapshot) => {
+          const data = snapshot.val();
+          setRoomData(data);
+          setIsConnected(true);
+        });
+
+        // Setup cleanup handlers
+        await update(roomRef, {
+          [`cleanup/${playerId}`]: {
+            timestamp: Date.now(),
+            actions: {
+              players: playerId,
+              scores: playerId,
+              answers: playerId
+            }
+          }
+        });
+
+        cleanupFn = () => {
+          unsub();
+          void update(roomRef, {
+            [`cleanup/${playerId}`]: null
+          });
+        };
+      } catch (error) {
+        console.error("Error setting up room:", error);
+        setIsConnected(false);
+      }
+    };
+
+    void setupRoom();
+
+    return () => {
+      if (cleanupFn) {
+        cleanupFn();
+      }
+    };
     
     const unsubscribe = onValue(roomRef, (snapshot) => {
       const data = snapshot.val();
@@ -69,9 +111,51 @@ export function useGameRoom(roomId: string | null, playerId: string) {
   }, [roomId]);
 
   // Create a new room with the current player as the first participant
-  const createRoom = useCallback(async (roomCode: string, config?: { category?: string; modules?: string[]; difficulties?: string[]; numQuestions?: number }) => {
-    if (!database) {
-      console.error("Firebase not initialized");
+  const createRoom = useCallback(async (newRoomId: string, config?: {
+    modules?: string[];
+    difficulties?: string[];
+    numQuestions?: number;
+    skills?: string[];
+  }) => {
+    if (!database) return;
+
+    try {
+      // Filter questions based on config
+      let availableQuestions = satQuestions;
+      if (config?.modules?.length) {
+        availableQuestions = availableQuestions.filter(q => 
+          config.modules?.includes(q.module.toLowerCase())
+        );
+      }
+      if (config?.difficulties?.length) {
+        availableQuestions = availableQuestions.filter(q => 
+          config.difficulties?.includes(q.difficulty || "M")
+        );
+      }
+
+      // Shuffle and select questions
+      const shuffled = availableQuestions
+        .sort(() => Math.random() - 0.5)
+        .slice(0, config?.numQuestions || 10);
+
+      if (shuffled.length === 0) {
+        throw new Error("No questions available for selected criteria");
+      }
+
+      // Create the room with filtered questions
+      const roomRef = ref(database, `rooms/${newRoomId}`);
+      await set(roomRef, {
+        currentQuestion: 0,
+        started: false,
+        players: [playerId],
+        scores: { [playerId]: 0 },
+        config,
+        questions: shuffled.map(q => q.id)
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error creating room:", error);
       return false;
     }
 
@@ -167,13 +251,30 @@ export function useGameRoom(roomId: string | null, playerId: string) {
 
   // Submit the player's answer to the room's 'answers' map
   const submitAnswer = useCallback(async (roomCode: string, answerIndex: number) => {
-    if (!database) return;
+    if (!database) return false;
 
     try {
+      const roomRef = ref(database, `rooms/${roomCode}`);
+      const snapshot = await get(roomRef);
+      
+      if (!snapshot.exists()) {
+        throw new Error("Room not found");
+      }
+
+      const data = snapshot.val();
+      const questionId = data.questions[data.currentQuestion];
+      const question = satQuestions.find(q => q.id === questionId);
+      
+      if (!question) {
+        throw new Error("Question not found");
+      }
+
       const answerRef = ref(database, `rooms/${roomCode}/answers/${playerId}`);
       await set(answerRef, answerIndex);
+      return true;
     } catch (error) {
       console.error("Error submitting answer:", error);
+      return false;
     }
   }, [playerId]);
 
@@ -197,12 +298,30 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     if (!database) return;
 
     try {
+      // Remove player from the room first
       const roomRef = ref(database, `rooms/${roomCode}`);
-      await remove(roomRef);
+      const snapshot = await get(roomRef);
+      
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const players = data.players || [];
+        
+        if (players.length === 1 && players.includes(playerId)) {
+          // Last player leaving, remove the entire room
+          await remove(roomRef);
+        } else {
+          // Just remove this player
+          await update(roomRef, {
+            players: players.filter((id: string) => id !== playerId),
+            [`scores/${playerId}`]: null,
+            [`answers/${playerId}`]: null,
+          });
+        }
+      }
     } catch (error) {
       console.error("Error leaving room:", error);
     }
-  }, []);
+  }, [playerId]);
 
   // Update one or more player scores (merges into the existing scores map)
   const setScores = useCallback(async (roomCode: string, scoresObj: Record<string, number>) => {

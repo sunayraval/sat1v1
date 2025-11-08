@@ -15,9 +15,9 @@ import { z } from "zod";
 // Question schema for SAT Duel
 export const questionSchema = z.object({
   id: z.string(),
-  module: z.enum(["math", "reading", "writing"]),
-  difficulty: z.enum(["E", "M", "H"]).optional(), // Easy, Medium, Hard
-  skill_desc: z.string(),
+  module: z.string(), // Normalized to lowercase in the transformer
+  difficulty: z.enum(["E", "M", "H"]), // Easy, Medium, Hard (defaults to M)
+  skill_desc: z.string().optional(),
   content: z.object({
     stem: z.string(),
     answerOptions: z.array(z.string()),
@@ -28,21 +28,24 @@ export const questionSchema = z.object({
 
 export type Question = z.infer<typeof questionSchema>;
 
+export const roomConfigSchema = z.object({
+  modules: z.array(z.string()).min(1),
+  difficulties: z.array(z.enum(["E", "M", "H"])).min(1),
+  numQuestions: z.number().min(1).max(50).default(10),
+});
+
+export type RoomConfig = z.infer<typeof roomConfigSchema>;
+
 // Game room schema
 export const gameRoomSchema = z.object({
   roomId: z.string(),
   currentQuestion: z.number(),
   started: z.boolean(),
   players: z.array(z.string()),
-  // optional room configuration chosen by the creator
-  config: z
-    .object({
-      modules: z.array(z.enum(["math", "reading", "writing"])).optional(),
-      difficulties: z.array(z.enum(["E", "M", "H"])).optional(),
-      numQuestions: z.number().min(1).optional(),
-      skills: z.array(z.string()).optional(),
-    })
-    .optional(),
+  scores: z.record(z.string(), z.number()),
+  answers: z.record(z.string(), z.number()).optional(),
+  questions: z.array(z.string()),
+  config: roomConfigSchema,
 });
 
 export type GameRoom = z.infer<typeof gameRoomSchema>;

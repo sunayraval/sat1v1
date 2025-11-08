@@ -1,0 +1,127 @@
+.question-content table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.question-content table td,
+.question-content table th {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.question-content table th {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.question-content {
+  font-feature-settings: "kern" 1, "liga" 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.question-content span.math,
+.question-content span.latex,
+.question-content .MathJax_Display {
+  font-family: "Computer Modern", Georgia, serif;
+}
+
+/* Fix parentheses visibility */
+.question-content .math *,
+.question-content .MathJax * {
+  font-family: "Computer Modern", Georgia, serif !important;
+}
+
+/* Enhanced option styling */
+.answer-option {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(39, 39, 42);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  transition: all 0.2s;
+  min-height: 4rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.answer-option:hover:not(:disabled) {
+  border-color: rgb(63, 63, 70);
+  background: rgba(24, 24, 27, 0.5);
+  transform: translateY(-1px);
+}
+
+.answer-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.answer-option.selected {
+  border-color: rgb(16, 185, 129);
+  background: rgba(6, 78, 59, 0.2);
+}
+
+.answer-option.correct {
+  border-color: rgb(16, 185, 129);
+  background: rgba(6, 78, 59, 0.2);
+}
+
+.answer-option.incorrect {
+  border-color: rgb(239, 68, 68);
+  background: rgba(153, 27, 27, 0.2);
+}
+
+/* Cool animations */
+.question-container {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.answer-option {
+  animation: fadeIn 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+.answer-option:nth-child(1) { animation-delay: 0.1s; }
+.answer-option:nth-child(2) { animation-delay: 0.2s; }
+.answer-option:nth-child(3) { animation-delay: 0.3s; }
+.answer-option:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Neon elements */
+.neon-text {
+  color: rgb(16, 185, 129);
+  text-shadow: 0 0 5px rgba(16, 185, 129, 0.5),
+               0 0 10px rgba(16, 185, 129, 0.3),
+               0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.neon-border {
+  box-shadow: 0 0 5px rgba(16, 185, 129, 0.5),
+              0 0 10px rgba(16, 185, 129, 0.3),
+              0 0 15px rgba(16, 185, 129, 0.2);
+}

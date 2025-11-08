@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Loader2 } from "lucide-react";
 import { Question } from "@shared/schema";
+import "@/styles/questions.css";
+import "@/styles/question-display.css";
 
 interface QuestionDisplayProps {
   question: Question;
@@ -62,74 +64,70 @@ export default function QuestionDisplay({
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
-      <Card>
+      <Card className="question-container backdrop-blur-lg bg-zinc-950/70 border border-zinc-800">
         <CardHeader className="space-y-3">
           <div className="flex gap-2">
-            <Badge variant="outline" className="w-fit capitalize" data-testid="text-module">
+            <Badge variant="outline" className="w-fit capitalize neon-text" data-testid="text-module">
               {question.module}
             </Badge>
             {question.difficulty && (
-              <Badge variant="outline" className="w-fit" data-testid="text-difficulty">
+              <Badge variant="outline" className="w-fit neon-text" data-testid="text-difficulty">
                 {question.difficulty === 'E' ? 'Easy' : question.difficulty === 'M' ? 'Medium' : 'Hard'}
               </Badge>
             )}
+            {isWaiting && (
+              <div className="flex items-center gap-2 ml-auto">
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                <span className="text-emerald-500 neon-text">Waiting...</span>
+              </div>
+            )}
           </div>
-          <h2 className="text-xl font-medium leading-relaxed" data-testid="text-question" 
+          <div className="question-content prose dark:prose-invert max-w-none" data-testid="text-question" 
               dangerouslySetInnerHTML={{ __html: question.content.stem }}
           />
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {question.content.answerOptions.map((choice, index) => {
               const isSelected = localSelected === index;
               const isCorrectAnswer = showResult && question.content.correct_answer.includes(choice);
               const isWrongAnswer = showResult && isSelected && !question.content.correct_answer.includes(choice);
 
               return (
-                <Button
+                <button
                   key={index}
                   data-testid={`button-choice-${index}`}
                   onClick={() => handleSelect(index)}
                   disabled={localSelected !== undefined || isWaiting}
-                  variant={isSelected ? "default" : "outline"}
-                  className={`w-full h-auto min-h-[4rem] p-4 justify-start text-left hover-elevate active-elevate-2 ${
-                    isCorrectAnswer ? "border-2 border-green-500" : ""
-                  } ${isWrongAnswer ? "border-2 border-destructive" : ""}`}
+                  className={`answer-option ${isSelected ? 'selected' : ''} 
+                    ${isCorrectAnswer ? 'correct neon-border' : ''} 
+                    ${isWrongAnswer ? 'incorrect' : ''}`}
                 >
                   <div className="flex items-start gap-3 w-full">
                     <Badge
                       variant={isSelected ? "secondary" : "outline"}
-                      className="mt-0.5 font-bold min-w-[2rem] justify-center"
+                      className={`mt-0.5 font-bold min-w-[2rem] justify-center ${isSelected ? 'neon-text' : ''}`}
                     >
                       {CHOICE_LABELS[index]}
                     </Badge>
-                    <span className="flex-1 prose-sm" dangerouslySetInnerHTML={{ __html: String(choice) }} />
+                    <span className="flex-1 prose-sm question-content" dangerouslySetInnerHTML={{ __html: String(choice) }} />
                     {showResult && isCorrectAnswer && (
-                      <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
                     )}
                     {showResult && isWrongAnswer && (
-                      <X className="w-5 h-5 text-destructive flex-shrink-0" />
+                      <X className="w-5 h-5 text-red-500 flex-shrink-0" />
                     )}
                   </div>
-                </Button>
+                </button>
               );
             })}
           </div>
 
-          {isWaiting && (
-            <div className="flex items-center justify-center gap-2 py-4 text-muted-foreground">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <p className="text-sm" data-testid="text-waiting-opponent">
-                Waiting for opponent...
-              </p>
-            </div>
-          )}
-
           {showResult && (
-            <div className="pt-4 border-t">
+            <div className="pt-4 border-t border-zinc-800">
               <p
                 className={`text-center font-semibold ${
-                  isCorrect ? "text-green-600" : "text-destructive"
+                  isCorrect ? "text-emerald-500 neon-text" : "text-red-500"
                 }`}
                 data-testid="text-result"
               >
@@ -139,12 +137,12 @@ export default function QuestionDisplay({
           )}
 
           {showExplanation && question.content.rationale && (
-            <div className="max-w-2xl mx-auto px-4 mt-4">
-              <Card>
+            <div className="max-w-2xl mx-auto mt-4">
+              <Card className="bg-zinc-950/70 border-zinc-800">
                 <CardContent className="pt-4">
-                  <h3 className="font-semibold mb-2">Explanation:</h3>
+                  <h3 className="font-semibold mb-2 text-emerald-500 neon-text">Explanation:</h3>
                   <div
-                    className="prose prose-sm max-w-none"
+                    className="prose prose-sm max-w-none question-content"
                     dangerouslySetInnerHTML={{ __html: question.content.rationale }}
                   />
                 </CardContent>
