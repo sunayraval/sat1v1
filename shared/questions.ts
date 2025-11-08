@@ -1,32 +1,61 @@
 /*
-	questions.ts
+  questions.ts
 
-	Exposes the static list of SAT-style questions consumed by the
-	client. Questions are stored in JSON so they are easy to edit by
-	non-programmers — to add a new question, update `shared/questions.json`.
-
-	The file simply imports the JSON and re-exports it with the `Question`
-	TypeScript type for convenience in the UI code.
+  Clean, single-responsibility module that imports the raw
+  questions JSON and exports a typed array of Question objects
+  matching the `Question` type from `shared/schema.ts`.
 */
 import { Question } from "./schema";
-import questionsData from "./questions.json";
+import rawQuestionsData from "./questions.json";
 
-// Load questions from JSON file and transform to our Question format
-export const satQuestions: Record<string, Question> = Object.entries(questionsData).reduce((acc, [id, q]: [string, any]) => {
-  // Only include questions that match our schema
-  if (!q?.content?.stem || !q?.content?.answerOptions) return acc;
-
-  acc[id] = {
-    id,
-    module: q.module?.toLowerCase() || "math",
-    difficulty: q.difficulty,
-    skill_desc: q.skill_desc || "",
-    content: {
-      stem: q.content.stem,
-      answerOptions: q.content.answerOptions || [],
-      correct_answer: q.content.correct_answer || [],
-      rationale: q.content.rationale
-    }
+interface RawQuestion {
+  content: {
+    stem: string;
+    answerOptions?: string[];
+    correct_answer?: string[];
+    keys?: string[];
+    rationale?: string;
   };
-  return acc;
-}, {} as Record<string, Question>);
+  module?: string;
+  difficulty?: string;
+  skill_desc?: string;
+  [k: string]: any;
+}
+
+function transformQuestion(id: string, raw: RawQuestion): Question | null {
+  if (!raw?.content?.stem) return null;
+
+  let answerOptions = raw.content.answerOptions && raw.content.answerOptions.length
+    ? raw.content.answerOptions
+    : [];
+
+  let correct_answer = raw.content.correct_answer && raw.content.correct_answer.length
+    ? raw.content.correct_answer
+    : raw.content.keys && raw.content.keys.length
+      ? raw.content.keys
+      : [];
+
+  // If still no answerOptions but we have keys, use keys as options
+  if (answerOptions.length === 0 && raw.content.keys?.length) {
+    answerOptions = raw.content.keys;
+  }
+
+  if (answerOptions.length === 0) return null; // skip free-response items
+
+  return {
+    id,
+    module: (raw.module?.toLowerCase() as any) || "math",
+    difficulty: (raw.difficulty as any) || "M",
+    skill_desc: raw.skill_desc || "",
+    content: {
+      stem: raw.content.stem,
+      answerOptions,
+      correct_answer,
+      rationale: raw.content.rationale || ""
+    }
+  } as Question;
+}
+
+export const satQuestions: Question[] = Object.entries(rawQuestionsData as Record<string, RawQuestion>)
+  .map(([id, raw]) => transformQuestion(id, raw))
+  .filter((q): q is Question => q !== null);

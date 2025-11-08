@@ -35,6 +35,7 @@ export default function Home() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | undefined>();
   const [playerScore, setPlayerScore] = useState(0);
   const [opponentScore, setOpponentScore] = useState(0);
+  const [showExplanation, setShowExplanation] = useState(false);
   const { toast } = useToast();
   const processedQuestionRef = useRef<number>(-1);
 
@@ -95,6 +96,8 @@ export default function Home() {
     }
 
     return filtered.length > 0 ? filtered : all;
+      const mappedQuestions = filtered.map(([_, q]) => q);
+      return mappedQuestions.length > 0 ? mappedQuestions : Object.values(satQuestions);
   }, [roomData?.config]);
 
   // Reset selected answer when question changes
@@ -255,6 +258,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background py-8 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 mb-4 flex justify-between items-center">
+        <Button variant="outline" onClick={handleNewRoom}>Leave Room</Button>
+      </div>
       <ScoreBoard
         playerScore={playerScore}
         opponentScore={opponentScore}
@@ -266,7 +272,23 @@ export default function Home() {
         onAnswer={handleAnswer}
         selectedAnswer={selectedAnswer}
         isWaiting={isWaiting}
+        showExplanation={showExplanation}
       />
+      {showExplanation && questions[currentQuestionIndex].content.rationale && (
+        <div className="max-w-2xl mx-auto px-4 mt-4">
+          <Card>
+            <CardContent className="pt-4">
+              <h3 className="font-semibold mb-2">Explanation:</h3>
+              <div 
+                className="prose prose-sm max-w-none" 
+                dangerouslySetInnerHTML={{ 
+                  __html: questions[currentQuestionIndex].content.rationale 
+                }} 
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

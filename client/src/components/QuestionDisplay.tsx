@@ -28,14 +28,31 @@ interface QuestionDisplayProps {
   isWaiting?: boolean;
   showResult?: boolean;
   isCorrect?: boolean;
+  showExplanation?: boolean;
 }
 
 const CHOICE_LABELS = ["A", "B", "C", "D"];
 
 export default function QuestionDisplay({
   question,
-  onAnswer,
+        isWaiting={isWaiting}
+        showExplanation={showExplanation}
   selectedAnswer,
+      {showExplanation && question.content.rationale && (
+        <div className="max-w-2xl mx-auto px-4 mt-4">
+          <Card>
+            <CardContent className="pt-4">
+              <h3 className="font-semibold mb-2">Explanation:</h3>
+              <div 
+                className="prose prose-sm max-w-none" 
+                dangerouslySetInnerHTML={{ 
+                  __html: question.content.rationale 
+                }} 
+              />
+            </CardContent>
+          </Card>
+        </div>
+      )}
   isWaiting = false,
   showResult = false,
   isCorrect = false,
