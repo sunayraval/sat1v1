@@ -1,3 +1,12 @@
+/*
+  WaitingRoom.tsx
+
+  Simple UI shown after a room is created and the first player is waiting
+  for an opponent to join. This component is purely presentational and
+  exposes an `onCancel` callback to allow the parent to clean up the room.
+  It also provides an easy "copy room code" affordance using the
+  browser clipboard API so the player can share the code with a friend.
+*/
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

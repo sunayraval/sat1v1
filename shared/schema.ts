@@ -1,3 +1,15 @@
+/*
+  schema.ts
+
+  Zod-based schemas and TypeScript types used throughout the project.
+  This file centralizes shapes for Questions, GameRooms, PlayerAnswers,
+  and the game state enum so both server and client can share common
+  expectations about the data.
+
+  If you add new fields to `shared/questions.json` (for example a
+  `hint` or `difficulty` property), update the `questionSchema` here
+  to keep types aligned.
+*/
 import { z } from "zod";
 
 // Question schema for SAT Duel

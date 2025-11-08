@@ -1,3 +1,15 @@
+/*
+  GameLobby.tsx
+
+  Small presentational component used as the initial lobby screen.
+  Responsibilities:
+  - Allow the user to enter a room code or generate one
+  - Trigger `onCreateRoom` or `onJoinRoom` callbacks passed from the
+    parent (Home.tsx). This component does not know about Firebase.
+
+  Keep changes here light-weight — the heavy lifting is in Home.tsx and
+  useGameRoom hook which perform the network/database work.
+*/
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

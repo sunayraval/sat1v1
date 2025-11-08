@@ -1,3 +1,10 @@
+/*
+  App.tsx
+
+  Application root: sets up global providers (React Query, UI providers)
+  and the router used by the single-page application. Small and focused
+  so most app logic lives in the routed pages (e.g. Home.tsx).
+*/
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";

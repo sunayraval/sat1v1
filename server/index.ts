@@ -1,9 +1,25 @@
+/*
+  server/index.ts
+
+  Express server bootstrap for development and production. Responsibilities:
+  - Configure JSON and URL-encoded body parsing
+  - Add a small request/response logger for API routes under /api
+  - Register application routes from `routes.ts` and then setup Vite in
+    development mode so the client can be served with HMR
+  - Start the HTTP server on the configured PORT
+
+  The file intentionally keeps route registration and server logic
+  separate (see `server/routes.ts`) so API handlers are easy to test
+  and maintain.
+*/
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
+// Attach rawBody to requests for cases where we might want to inspect the
+// original body bytes (useful for webhooks or signature verification).
 declare module 'http' {
   interface IncomingMessage {
     rawBody: unknown
@@ -16,6 +32,8 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false }));
 
+// A tiny logging middleware which captures API responses and prints a
+// short single-line log. Keeps output useful during development.
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -49,6 +67,8 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
+  // Simple error handler that returns JSON and re-throws the error so the
+  // process can be observed in development tools.
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -57,19 +77,14 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Setup Vite in development after routes are registered so the catch-all
+  // serving logic doesn't interfere with API endpoints.
   if (app.get("env") === "development") {
     await setupVite(app, server);
   } else {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({
     port,

@@ -1,3 +1,10 @@
+/*
+  ScoreBoard.tsx
+
+  Displays the current scores for both players and the progress
+  (which question is currently active). This component is presentational
+  only and receives all data via props.
+*/
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Target } from "lucide-react";

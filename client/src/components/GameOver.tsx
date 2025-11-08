@@ -1,3 +1,11 @@
+/*
+  GameOver.tsx
+
+  Final results screen shown after the duel ends. Displays the
+  final scores and provides actions to play again or create a new room.
+  This component is presentational and synchronous — logic to reset
+  scores and prepare a new game is driven by the parent (Home.tsx).
+*/
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trophy, Home, RotateCcw } from "lucide-react";

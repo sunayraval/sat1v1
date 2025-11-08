@@ -1,3 +1,19 @@
+/*
+  QuestionDisplay.tsx
+
+  Presents a single question and the four choices to the player.
+  Responsibilities:
+  - Render the question text, category badge, and four choice buttons
+  - Accept a callback `onAnswer` to report the player's selection
+  - Optionally display waiting state and immediate result indicators
+
+  Important props:
+  - question: the `Question` object (id, question, choices, correct)
+  - onAnswer: function called with the selected choice index
+  - selectedAnswer: externally-provided selected index (for syncing)
+  - isWaiting: displays an animated waiting indicator while opponent answers
+  - showResult / isCorrect: used to show correct/incorrect feedback
+*/
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

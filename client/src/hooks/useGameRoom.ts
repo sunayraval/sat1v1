@@ -1,3 +1,24 @@
+/*
+  useGameRoom.ts
+
+  React hook that wraps the minimal Firebase Realtime Database operations
+  used by the game. This hook provides a simple, focused API for the
+  UI code in `Home.tsx` to create/join/leave rooms and to submit answers.
+
+  Data shape (GameRoomData):
+    - currentQuestion: number
+    - started: boolean
+    - players: string[]
+    - answers: Record<playerId, choiceIndex>
+    - scores: Record<playerId, score>
+
+  Important details:
+  - The hook listens with `onValue` to the `rooms/{roomId}` path and
+    updates `roomData` whenever the DB changes.
+  - All write operations (create/join/submit/next/leave) are performed
+    against the same `rooms/{roomId}` path.
+  - Errors are logged to console for visibility during development.
+*/
 import { useState, useEffect, useCallback } from "react";
 import { database, ref, set, update, onValue, get, remove } from "@/lib/firebase";
 
@@ -13,6 +34,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
   const [roomData, setRoomData] = useState<GameRoomData | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  // Subscribe to realtime updates for the given roomId.
   useEffect(() => {
     if (!roomId || !database) return;
 
@@ -29,9 +51,11 @@ export function useGameRoom(roomId: string | null, playerId: string) {
       }
     });
 
+    // Clean up listener on unmount or when roomId changes
     return () => unsubscribe();
   }, [roomId]);
 
+  // Create a new room with the current player as the first participant
   const createRoom = useCallback(async (roomCode: string) => {
     if (!database) {
       console.error("Firebase not initialized");
@@ -53,6 +77,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     }
   }, [playerId]);
 
+  // Join an existing room if it exists and is not full
   const joinRoom = useCallback(async (roomCode: string) => {
     if (!database) {
       console.error("Firebase not initialized");
@@ -71,10 +96,12 @@ export function useGameRoom(roomId: string | null, playerId: string) {
       const players = data.players || [];
       
       if (players.includes(playerId)) {
+        // already joined
         return true;
       }
 
       if (players.length >= 2) {
+        // this simple app limits rooms to two players
         return false;
       }
 
@@ -91,6 +118,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     }
   }, [playerId]);
 
+  // Submit the player's answer to the room's 'answers' map
   const submitAnswer = useCallback(async (roomCode: string, answerIndex: number) => {
     if (!database) return;
 
@@ -102,6 +130,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     }
   }, [playerId]);
 
+  // Move the room to a new currentQuestion and clear existing answers
   const nextQuestion = useCallback(async (roomCode: string, questionIndex: number) => {
     if (!database) return;
 
@@ -116,6 +145,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     }
   }, []);
 
+  // Remove the room entirely (used for cleanup on cancel/leave)
   const leaveRoom = useCallback(async (roomCode: string) => {
     if (!database) return;
 

@@ -1,3 +1,18 @@
+/*
+  use-toast.ts
+
+  Small, framework-agnostic toast manager used by the UI. This file
+  implements a micro store for toasts (add/update/dismiss/remove) and
+  exposes a `useToast` hook for components to read and trigger toast
+  notifications without coupling to external UI libraries.
+
+  Implementation notes:
+  - `memoryState` stores the current toasts in memory so they survive
+    across hook invocations.
+  - `toast()` returns an API with `dismiss` and `update` helpers.
+  - The implementation intentionally keeps side effects local and
+    simple for easier testing and inspection.
+*/
 import * as React from "react"
 
 import type {

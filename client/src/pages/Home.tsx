@@ -1,3 +1,23 @@
+/*
+  Home.tsx
+
+  Main page for the SAT Duel application. This component is the
+  orchestrator for the client-side game flow. Responsibilities:
+  - Maintain UI state (lobby, waiting, playing, gameover)
+  - Create/join/leave rooms through the `useGameRoom` hook
+  - Track player and opponent scores and selected answers
+  - Drive question progression using the shared `satQuestions` list
+
+  Key effects:
+  - Listen for room updates via Firebase (useGameRoom)
+  - When both players answer a question, determine correctness
+    and advance to the next question or show the GameOver screen
+
+  Notes for contributors:
+  - Room state is stored in Firebase Realtime Database under
+    `rooms/{roomCode}`. The `useGameRoom` hook wraps those reads/writes.
+  - Questions are static and imported from `@shared/questions`.
+*/
 import { useState, useEffect, useMemo, useRef } from "react";
 import GameLobby from "@/components/GameLobby";
 import WaitingRoom from "@/components/WaitingRoom";
@@ -37,6 +57,7 @@ export default function Home() {
     leaveRoom,
   } = useGameRoom(gameState === "lobby" ? null : roomCode, playerId);
 
+  // Determine which question the room is currently on and the opponent's id
   const currentQuestionIndex = roomData?.currentQuestion || 0;
   const opponentId = roomData?.players?.find((id) => id !== playerId);
 
