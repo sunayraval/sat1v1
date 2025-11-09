@@ -10,6 +10,7 @@
   --wrong-color: rgb(239, 68, 68);
   --correct-glow: rgba(34, 197, 94, 0.3);
   --wrong-glow: rgba(239, 68, 68, 0.3);
+  --neon-glow: rgba(16, 185, 129, 0.12);
 }
 
 /* Base dark theme */
@@ -60,11 +61,11 @@ body {
 
 .neon-hover:hover {
   border-color: var(--neon-primary);
-  background: rgba(16, 185, 129, 0.1);
-  box-shadow: 
-    0 0 10px rgba(16, 185, 129, 0.6),
-    0 0 20px rgba(16, 185, 129, 0.3),
-    inset 0 0 20px rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.06);
+  box-shadow:
+    0 0 6px var(--neon-glow),
+    0 0 12px rgba(16, 185, 129, 0.06),
+    inset 0 0 8px rgba(16, 185, 129, 0.04);
   transform: translateY(-1px);
 }
 
@@ -120,9 +121,9 @@ body {
 }
 
 .answer-option:hover:not(:disabled):not(.selected):not(.answer-correct):not(.answer-wrong) {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.04);
   border-color: var(--neon-primary);
-  box-shadow: 0 0 15px var(--neon-glow);
+  box-shadow: 0 0 8px var(--neon-glow);
   transform: translateY(-2px);
 }
 
@@ -192,14 +193,10 @@ body {
 
 @keyframes glowPulse {
   0%, 100% {
-    box-shadow: 
-      0 0 10px rgba(16, 185, 129, 0.4),
-      inset 0 0 20px rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 6px var(--neon-glow), inset 0 0 10px rgba(16, 185, 129, 0.06);
   }
   50% {
-    box-shadow: 
-      0 0 20px rgba(16, 185, 129, 0.6),
-      inset 0 0 30px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.10), inset 0 0 12px rgba(16, 185, 129, 0.08);
   }
 }
 
@@ -394,18 +391,16 @@ body {
 }
 
 .answer-option.selected {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(16, 185, 129, 0.06);
   border: 1px solid var(--neon-primary);
-  animation: glowPulse 2s infinite;
+  animation: glowPulse 2.5s infinite;
   color: var(--neon-primary);
 }
 
 .answer-option:hover:not(:disabled):not(.selected):not(.answer-correct):not(.answer-wrong) {
   border-color: var(--neon-primary);
-  background: rgba(16, 185, 129, 0.1);
-  box-shadow: 
-    0 0 10px rgba(16, 185, 129, 0.4),
-    0 0 20px rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.04);
+  box-shadow: 0 0 8px var(--neon-glow), 0 0 12px rgba(16, 185, 129, 0.06);
   transform: translateY(-2px);
   color: var(--neon-primary);
 }
