@@ -21,7 +21,8 @@ import { Badge } from "@/components/ui/badge";
 import { Check, X, Loader2 } from "lucide-react";
 import { Question } from "@shared/schema";
 import { setupImageThemeDetection } from "@/lib/utils/imageTheme";
-import "@/styles/neon.css";
+// Use a clean copy of the theme while neon.css is being stabilized
+import "@/styles/neon-clean.css";
 import "@/styles/questions.css";
 import "@/styles/question-display.css";
 
