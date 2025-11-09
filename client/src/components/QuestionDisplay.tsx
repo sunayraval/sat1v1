@@ -48,6 +48,13 @@ export default function QuestionDisplay({
 }: QuestionDisplayProps) {
   const [localSelected, setLocalSelected] = useState<number | undefined>(selectedAnswer);
 
+  // Determine if this question includes an image (in stem or stimulus).
+  // Simple heuristic: look for <img, <svg, or data:image in the HTML strings.
+  const hasImage = Boolean(
+    (question.content.stimulus && /<img\b|<svg\b|data:image\//i.test(question.content.stimulus)) ||
+    (question.content.stem && /<img\b|<svg\b|data:image\//i.test(question.content.stem))
+  );
+
   // Reset local selection when selectedAnswer prop changes (e.g., new question)
   useEffect(() => {
     setLocalSelected(selectedAnswer);
@@ -74,7 +81,7 @@ export default function QuestionDisplay({
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4">
-      <Card className="question-container backdrop-blur-lg bg-zinc-950/70 border border-zinc-800">
+  <Card className={`question-container backdrop-blur-lg bg-zinc-950/70 border border-zinc-800 ${hasImage ? 'question-image-card' : ''}`}>
         <CardHeader className="space-y-3">
           <div className="flex gap-2">
             <Badge variant="outline" className="w-fit capitalize neon-text" data-testid="text-module">

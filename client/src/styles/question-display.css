@@ -112,3 +112,62 @@
               0 0 10px theme('colors.emerald.500'),
               0 0 15px theme('colors.emerald.500');
 }
+
+/* Conditional styling for questions that include images.
+   Per requirement: when a question contains an attached image,
+   render the surrounding question area with a white background
+   and black text for readability. The image itself must be
+   displayed exactly as uploaded (no inversion or color changes).
+*/
+.question-image-card {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08) !important;
+}
+
+.question-image-card .question-content,
+.question-image-card .question-stimulus,
+.question-image-card .question-stem,
+.question-image-card .prose,
+.question-image-card .prose *,
+.question-image-card .answer-option,
+.question-image-card .badge,
+.question-image-card .neon-text {
+  color: #000000 !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Preserve original image rendering: explicitly disable any inversion/filters
+   inside the image-attached card so images appear exactly as uploaded. */
+.question-image-card img,
+.question-image-card picture,
+.question-image-card svg {
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  background: transparent !important;
+}
+
+/* Ensure answer options have visible borders on white background */
+.question-image-card .answer-option {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  color: #000000 !important;
+}
+
+/* Make selected/correct/incorrect states use subtle accents without neon glow */
+.question-image-card .answer-option.selected,
+.question-image-card .answer-option.correct {
+  background: #f6fff6 !important; /* faint green tint for correct */
+  border-color: rgba(34,197,94,0.12) !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+}
+
+.question-image-card .answer-option.incorrect {
+  background: #fff6f6 !important; /* faint red tint for incorrect */
+  border-color: rgba(239,68,68,0.12) !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+}
