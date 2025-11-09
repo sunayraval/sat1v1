@@ -1,210 +1,113 @@
 
-/* neon.css — final clean single-file theme */
+/* neon.css — single, minimal validated theme (complete replacement) */
 
-:root {
-  --neon-primary-rgb: 16,185,129;
-  --dark-bg: #09090b;
-  --dark-surface: rgba(24,24,27,0.92);
-  --text-primary: #fafafa;
-  --neon-glow-sm: rgba(var(--neon-primary-rgb), 0.04);
-  --neon-text-shadow-sm: 0 0 6px rgba(var(--neon-primary-rgb), 0.06);
+:root{
+  --neon-primary-rgb:16,185,129;
+  --dark-bg:#09090b;
+  --dark-surface:rgba(24,24,27,0.92);
+  --text-primary:#fafafa;
 }
 
 /* Base */
-html, body { height: 100%; }
-body { margin: 0; background: var(--dark-bg); color: var(--text-primary); font-family: Inter, "Poppins", "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html,body{height:100%}
+body{margin:0;background:var(--dark-bg);color:var(--text-primary);font-family:Inter, "Poppins", "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 
-/* Container / accents */
-.neon-container { background: var(--dark-surface); border-radius: 10px; border: 1px solid rgba(var(--neon-primary-rgb), 0.06); box-shadow: 0 6px 22px rgba(0,0,0,0.6); }
-.neon-text { text-shadow: var(--neon-text-shadow-sm); }
+/* Container */
+.neon-container{background:var(--dark-surface);border-radius:10px;border:1px solid rgba(var(--neon-primary-rgb),0.06);box-shadow:0 6px 22px rgba(0,0,0,0.6)}
 
-/* Question content */
-.question-content { color: var(--text-primary); line-height: 1.7; font-size: 1.03rem; }
-.question-text { font-size: 1.12rem; }
+/* Questions */
+.question-content{color:var(--text-primary);line-height:1.7;font-size:1.03rem}
+.question-text{font-size:1.12rem}
 
-.answer-options { display: grid; gap: 0.9rem; }
-.answer-option { background: var(--dark-surface); border-radius: 8px; padding: 0.9rem; border: 1px solid rgba(255,255,255,0.03); transition: all 0.18s ease; }
-.answer-option:hover:not(:disabled) { box-shadow: 0 0 6px var(--neon-glow-sm); transform: translateY(-1px); }
-.answer-option.selected { border: 1px solid rgba(var(--neon-primary-rgb), 0.10); background: rgba(var(--neon-primary-rgb), 0.02); }
-
-.answer-correct { background: rgba(34,197,94,0.06); border-color: rgba(34,197,94,0.10); }
-.answer-wrong { background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.09); }
+.answer-options{display:grid;gap:.9rem}
+.answer-option{background:var(--dark-surface);border-radius:8px;padding:.9rem;border:1px solid rgba(255,255,255,0.03);transition:all .18s ease}
+.answer-option:hover:not(:disabled){box-shadow:0 0 6px rgba(16,185,129,0.04);transform:translateY(-1px)}
+.answer-option.selected{border:1px solid rgba(16,185,129,0.10);background:rgba(16,185,129,0.02)}
 
 /* Images */
-.question-content img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); }
-/* Only invert images explicitly tagged as dark by JS */
-img[data-theme="dark"] { filter: brightness(1.05) contrast(1.12) invert(1) hue-rotate(180deg); }
+.question-content img{max-width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+img[data-theme="dark"]{filter:brightness(1.05) contrast(1.12) invert(1) hue-rotate(180deg)}
 
-/* When a question has an attached image, present the card as white/black and keep image colors */
-.question-image-card { background: #fff; color: #000 !important; }
-.question-image-card .question-text, .question-image-card .question-content { color: #000 !important; }
-.question-image-card img { filter: none !important; }
+/* Image-attached questions: white card, black text, preserve original image colors */
+.question-image-card{background:#fff;color:#000!important}
+.question-image-card .question-text,.question-image-card .question-content{color:#000!important}
+.question-image-card img{filter:none!important}
 
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-
-/* End of file */
-/* neon.css — final clean single-file theme */
-
-:root {
-  --neon-primary-rgb: 16,185,129;
-  --dark-bg: #09090b;
-  --dark-surface: rgba(24,24,27,0.92);
-  --text-primary: #fafafa;
-  --neon-glow-sm: rgba(var(--neon-primary-rgb), 0.04);
-  --neon-text-shadow-sm: 0 0 6px rgba(var(--neon-primary-rgb), 0.06);
-}
-
-/* Base */
-html, body { height: 100%; }
-body { margin: 0; background: var(--dark-bg); color: var(--text-primary); font-family: Inter, "Poppins", "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-
-/* Container / accents */
-.neon-container { background: var(--dark-surface); border-radius: 10px; border: 1px solid rgba(var(--neon-primary-rgb), 0.06); box-shadow: 0 6px 22px rgba(0,0,0,0.6); }
-.neon-text { text-shadow: var(--neon-text-shadow-sm); }
-
-/* Question content */
-.question-content { color: var(--text-primary); line-height: 1.7; font-size: 1.03rem; }
-.question-text { font-size: 1.12rem; }
-
-.answer-options { display: grid; gap: 0.9rem; }
-.answer-option { background: var(--dark-surface); border-radius: 8px; padding: 0.9rem; border: 1px solid rgba(255,255,255,0.03); transition: all 0.18s ease; }
-.answer-option:hover:not(:disabled) { box-shadow: 0 0 6px var(--neon-glow-sm); transform: translateY(-1px); }
-.answer-option.selected { border: 1px solid rgba(var(--neon-primary-rgb), 0.10); background: rgba(var(--neon-primary-rgb), 0.02); }
-
-.answer-correct { background: rgba(34,197,94,0.06); border-color: rgba(34,197,94,0.10); }
-.answer-wrong { background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.09); }
-
-/* Images */
-.question-content img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); }
-/* Only invert images explicitly tagged as dark by JS */
-img[data-theme="dark"] { filter: brightness(1.05) contrast(1.12) invert(1) hue-rotate(180deg); }
-
-/* When a question has an attached image, present the card as white/black and keep image colors */
-.question-image-card { background: #fff; color: #000 !important; }
-.question-image-card .question-text, .question-image-card .question-content { color: #000 !important; }
-.question-image-card img { filter: none !important; }
-
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-
-/* End of file */
-/* Minimal, validated neon.css — single source of truth */
-
-:root {
-  --neon-primary-rgb: 16, 185, 129;
-  --dark-bg: #09090b;
-  --dark-surface: rgba(24, 24, 27, 0.92);
-  --text-primary: #fafafa;
-  --neon-glow-sm: rgba(var(--neon-primary-rgb), 0.04);
-  --neon-text-shadow-sm: 0 0 6px rgba(var(--neon-primary-rgb), 0.06);
-}
-
-body { margin:0; background: var(--dark-bg); color: var(--text-primary); font-family: Inter, "Poppins", "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
-
-.neon-container { background: var(--dark-surface); border-radius: 10px; border: 1px solid rgba(var(--neon-primary-rgb), 0.06); box-shadow: 0 6px 22px rgba(0,0,0,0.6); }
-
-.neon-text { text-shadow: var(--neon-text-shadow-sm); }
-
-.question-content { color: var(--text-primary); line-height:1.7; font-size:1.03rem; }
-.question-text { font-size:1.12rem; }
-
-.answer-options { display:grid; gap:.9rem; }
-.answer-option { background: var(--dark-surface); border-radius:8px; padding:.9rem; border:1px solid rgba(255,255,255,0.03); transition: all .18s ease; }
-.answer-option:hover:not(:disabled) { box-shadow: 0 0 6px var(--neon-glow-sm); transform: translateY(-1px); }
-
-.answer-correct { background: rgba(34,197,94,0.06); border-color: rgba(34,197,94,0.10); }
-.answer-wrong { background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.09); }
-
-/* Images */
-.question-content img { max-width:100%; height:auto; border-radius:8px; border: 1px solid rgba(255,255,255,0.03); }
-img[data-theme="dark"] { filter: brightness(1.05) contrast(1.12) invert(1) hue-rotate(180deg); }
-
-/* When a question has an attached image, present the card as white/black and keep image colors */
-.question-image-card { background: #fff; color: #000 !important; }
-.question-image-card .question-text, .question-image-card .question-content { color: #000 !important; }
-.question-image-card img { filter: none !important; }
-
-/* Accessibility: reduce motion */
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 /* End */
-  --text-secondary: #c8fec8;
-  --correct-color: #22c55e;
-  --wrong-color: #ef4444;
-  --neon-glow: rgba(var(--neon-primary-rgb), 0.06);
-  --neon-glow-sm: rgba(var(--neon-primary-rgb), 0.04);
-  --neon-glow-spread: 6px;
-  --neon-text-shadow-sm: 0 0 6px rgba(var(--neon-primary-rgb), 0.06);
+
+/* --- Enhanced neon styling (polished) --- */
+:root{
+  --neon-accent: rgb(16,185,129);
+  --neon-accent-rgb: 16,185,129;
+  --glass: rgba(255,255,255,0.03);
+  --muted: rgba(255,255,255,0.6);
+  --surface-2: rgba(20,20,24,0.7);
+  --radius: 12px;
+  --control-padding: 0.9rem;
+  --neon-glow: 0 6px 32px rgba(var(--neon-accent-rgb),0.06);
+  --neon-outline: 0 0 18px rgba(var(--neon-accent-rgb),0.10);
 }
 
-html, body { height: 100%; }
-
+/* page background with subtle vignette and noise-like gradient */
 body {
-  margin: 0;
-  background: var(--dark-bg);
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(16,24,30,0.35), transparent),
+              linear-gradient(180deg, rgba(4,6,7,0.6), rgba(6,8,10,0.95));
+  background-color: var(--dark-bg);
   color: var(--text-primary);
-  font-family: Inter, "Poppins", "Montserrat", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.45;
 }
-
-.home-container { padding: 2rem; min-height: 100vh; }
 
 .neon-container {
-  background: var(--dark-surface);
-  border-radius: 10px;
-  border: 1px solid rgba(var(--neon-primary-rgb), 0.06);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.6), 0 0 10px var(--neon-glow-sm);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: var(--radius);
+  border: 1px solid rgba(var(--neon-accent-rgb), 0.06);
+  box-shadow: var(--neon-glow), 0 6px 28px rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px) saturate(115%);
 }
 
-.neon-text { color: var(--text-primary); text-shadow: var(--neon-text-shadow-sm); }
-.neon-text-accent { color: rgb(var(--neon-primary-rgb)); text-shadow: var(--neon-text-shadow-sm); }
-.neon-border { border: 1px solid rgba(var(--neon-primary-rgb), 0.06); box-shadow: 0 0 calc(var(--neon-glow-spread) / 1.5) var(--neon-glow-sm); }
-.neon-hover:hover { transform: translateY(-1px); box-shadow: 0 0 6px var(--neon-glow-sm); }
-
-/* Content styles */
-.question-content { color: var(--text-primary); line-height: 1.7; font-size: 1.03rem; }
-.question-content.prose, .question-content.prose-sm, .question-content.prose * { color: var(--text-primary) !important; }
-.question-content h1, .question-content h2, .question-content h3 { color: rgb(var(--neon-primary-rgb)); text-shadow: var(--neon-text-shadow-sm); }
-
-.question-text { color: var(--text-primary); font-size: 1.12rem; }
-
-/* Minimal validated neon theme (single file) */
-
-:root {
-  --neon-primary-rgb: 16,185,129;
-  --dark-bg: #09090b;
-  --dark-surface: rgba(24,24,27,0.92);
-  --text-primary: #fafafa;
-  --neon-glow-sm: rgba(var(--neon-primary-rgb), 0.04);
-  --neon-text-shadow-sm: 0 0 6px rgba(var(--neon-primary-rgb), 0.06);
+.neon-heading {
+  color: var(--text-primary);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 18px rgba(var(--neon-accent-rgb), 0.06);
 }
 
-body { margin: 0; background: var(--dark-bg); color: var(--text-primary); font-family: Inter, "Poppins", "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+/* Polished question card */
+.question-card {
+  padding: 1.25rem;
+  border-radius: calc(var(--radius) - 2px);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+  border: 1px solid rgba(255,255,255,0.03);
+}
 
-.neon-container { background: var(--dark-surface); border-radius: 10px; border: 1px solid rgba(var(--neon-primary-rgb), 0.06); box-shadow: 0 6px 22px rgba(0,0,0,0.6); }
+.question-text { font-size: 1.15rem; font-weight: 500; color: var(--text-primary); }
+.question-content { font-size: 1.02rem; color: var(--muted); }
 
-.neon-text { text-shadow: var(--neon-text-shadow-sm); }
+.answer-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+.answer-option {
+  display:flex;align-items:center;gap:.8rem;padding:var(--control-padding);border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.03);transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.answer-option .label { min-width:36px; height:36px; border-radius:8px; display:flex;align-items:center;justify-content:center; font-weight:700; color:var(--text-primary); background:rgba(var(--neon-accent-rgb),0.06); box-shadow:0 6px 18px rgba(0,0,0,0.35); }
+.answer-option:hover:not(.disabled){ transform: translateY(-4px); box-shadow: var(--neon-outline); }
+.answer-option.selected{ border-color: rgba(var(--neon-accent-rgb),0.12); background: linear-gradient(180deg, rgba(var(--neon-accent-rgb),0.03), rgba(255,255,255,0.01)); }
 
-.question-content { color: var(--text-primary); line-height: 1.7; font-size: 1.03rem; }
-.question-text { font-size: 1.12rem; }
+.answer-correct{ background: linear-gradient(180deg, rgba(34,197,94,0.06), rgba(34,197,94,0.03)); border-color: rgba(34,197,94,0.12); }
+.answer-wrong{ background: linear-gradient(180deg, rgba(239,68,68,0.06), rgba(239,68,68,0.03)); border-color: rgba(239,68,68,0.10); }
 
-.answer-options { display: grid; gap: 0.9rem; }
-.answer-option { background: var(--dark-surface); border-radius: 8px; padding: 0.9rem; border: 1px solid rgba(255,255,255,0.03); transition: all 0.18s ease; }
-.answer-option:hover:not(:disabled) { box-shadow: 0 0 6px var(--neon-glow-sm); transform: translateY(-1px); }
+/* Buttons and small UI */
+.btn-neon{ background: linear-gradient(90deg, rgba(var(--neon-accent-rgb),0.14), rgba(var(--neon-accent-rgb),0.08)); color: #eafaf1; padding:.6rem .9rem; border-radius:8px; border:1px solid rgba(var(--neon-accent-rgb),0.14); box-shadow: 0 8px 30px rgba(var(--neon-accent-rgb),0.06); }
+.btn-neon:hover{ box-shadow: 0 10px 40px rgba(var(--neon-accent-rgb),0.12); transform:translateY(-2px); }
 
-.answer-correct { background: rgba(34,197,94,0.06); border-color: rgba(34,197,94,0.10); }
-.answer-wrong { background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.09); }
+/* Images: default invert for dark images (tagged by JS). Keep this small so colors remain natural */
+img[data-theme="dark"]{ filter: brightness(1.05) contrast(1.08) invert(1) hue-rotate(180deg); }
 
-.question-content img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); }
-img[data-theme="dark"] { filter: brightness(1.05) contrast(1.12) invert(1) hue-rotate(180deg); }
+/* CRITICAL: When a question has an attached image, present the card as white/black and keep image colors */
+.question-image-card{ background:#ffffff !important; color:#000000 !important; border:1px solid rgba(0,0,0,0.06) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.12) !important; }
+.question-image-card .question-text, .question-image-card .question-content{ color:#000000 !important; }
+.question-image-card img{ filter: none !important; }
 
-.question-image-card { background: #fff; color: #000 !important; }
-.question-image-card .question-text, .question-image-card .question-content { color: #000 !important; }
-.question-image-card img { filter: none !important; }
+/* small tweaks for readability */
+.badge-accent{ background: rgba(var(--neon-accent-rgb),0.08); color: var(--text-primary); padding: .25rem .5rem; border-radius: 6px; font-weight:600; }
 
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-
-/* End */
+/* end enhanced theme */
