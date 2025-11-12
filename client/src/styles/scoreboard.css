@@ -1,12 +1,10 @@
 .scoreboard-container {
-  background-color: var(--dark-surface);
-  border: 1px solid var(--neon-border);
+  background-color: var(--panel);
+  border: 1px solid rgba(var(--cyber-primary-rgb),0.06);
   border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 
-    0 0 15px var(--neon-glow),
-    inset 0 0 20px rgba(16, 185, 129, 0.05);
-  color: var(--text-primary);
+  padding: 1.25rem;
+  box-shadow: var(--glow-medium);
+  color: var(--text-100);
 }
 
 .score-item {
@@ -21,9 +19,9 @@
 
 .score-value {
   font-size: 2rem;
-  font-weight: bold;
-  color: var(--neon-primary);
-  text-shadow: 0 0 10px var(--neon-glow);
+  font-weight: 700;
+  color: var(--cyber-primary);
+  text-shadow: 0 8px 24px rgba(var(--cyber-primary-rgb),0.12);
 }
 
 .player-name {
@@ -38,10 +36,10 @@
 }
 
 .scoreboard-card {
-  background-color: var(--dark-surface) !important;
-  border: 1px solid var(--neon-border) !important;
-  color: var(--text-primary) !important;
-  box-shadow: 0 0 12px var(--neon-glow) !important;
+  background-color: rgba(0,0,0,0.18) !important;
+  border: 1px solid rgba(var(--cyber-primary-rgb),0.06) !important;
+  color: var(--text-100) !important;
+  box-shadow: var(--glow-medium) !important;
 }
 
 .scoreboard-card .text-muted-foreground {

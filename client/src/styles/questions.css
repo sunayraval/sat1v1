@@ -61,18 +61,18 @@
 }
 
 .answer-option.selected {
-  border-color: rgb(16, 185, 129);
-  background: rgba(6, 78, 59, 0.2);
+  border-color: rgba(var(--cyber-primary-rgb), 0.18);
+  background: linear-gradient(180deg, rgba(var(--cyber-primary-rgb), 0.04), rgba(0,0,0,0.02));
 }
 
 .answer-option.correct {
-  border-color: rgb(16, 185, 129);
-  background: rgba(6, 78, 59, 0.2);
+  border-color: rgba(34,197,94,0.12);
+  background: linear-gradient(180deg, rgba(34,197,94,0.06), rgba(34,197,94,0.03));
 }
 
 .answer-option.incorrect {
-  border-color: rgb(239, 68, 68);
-  background: rgba(153, 27, 27, 0.2);
+  border-color: rgba(239,68,68,0.12);
+  background: linear-gradient(180deg, rgba(239,68,68,0.06), rgba(239,68,68,0.03));
 }
 
 /* Cool animations */
@@ -114,14 +114,10 @@
 
 /* Neon elements */
 .neon-text {
-  color: rgb(16, 185, 129);
-  text-shadow: 0 0 5px rgba(16, 185, 129, 0.5),
-               0 0 10px rgba(16, 185, 129, 0.3),
-               0 0 15px rgba(16, 185, 129, 0.2);
+  color: var(--cyber-primary);
+  text-shadow: 0 0 8px rgba(var(--cyber-primary-rgb), 0.18), 0 0 16px rgba(var(--cyber-primary-rgb), 0.10);
 }
 
 .neon-border {
-  box-shadow: 0 0 5px rgba(16, 185, 129, 0.5),
-              0 0 10px rgba(16, 185, 129, 0.3),
-              0 0 15px rgba(16, 185, 129, 0.2);
+  box-shadow: var(--glow-outline);
 }
