@@ -21,7 +21,19 @@
   font-size: 2rem;
   font-weight: 700;
   color: var(--cyber-primary);
-  text-shadow: 0 8px 24px rgba(var(--cyber-primary-rgb),0.12);
+  /* layered text-shadow for stronger neon glow */
+  text-shadow: 0 10px 30px rgba(var(--cyber-primary-rgb),0.18),
+               0 4px 12px rgba(var(--cyber-primary-rgb),0.10);
+  /* subtle drop-shadow to give outer glow */
+  filter: drop-shadow(0 12px 40px rgba(var(--cyber-primary-rgb),0.12));
+  transition: text-shadow 180ms ease, filter 180ms ease, transform 180ms ease;
+}
+
+/* Label for the current player — neon blue with glow */
+.you-label {
+  color: var(--cyber-primary);
+  font-weight: 600;
+  text-shadow: 0 6px 20px rgba(var(--cyber-primary-rgb), 0.16);
 }
 
 .player-name {

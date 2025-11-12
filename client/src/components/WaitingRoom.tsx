@@ -36,23 +36,23 @@ export default function WaitingRoom({ roomCode, onCancel }: WaitingRoomProps) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 home-container">
       <Card className="w-full max-w-md neon-container">
-  <CardHeader className="text-center space-y-4 neon-text">
+        <CardHeader className="text-center space-y-4 neon-text">
           <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-              <Users className="w-8 h-8 text-primary" />
+            <div className="w-16 h-16 rounded-full glass flex items-center justify-center cyber-outline">
+              <Users className="w-8 h-8" style={{ color: 'var(--cyber-primary)' }} />
             </div>
           </div>
-          <CardTitle className="text-2xl">Waiting for Opponent</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-2xl neon-heading">Waiting for Opponent</CardTitle>
+          <CardDescription className="muted">
             Share the room code with your opponent to start the duel
           </CardDescription>
         </CardHeader>
   <CardContent className="space-y-6">
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground text-center">Room Code</p>
+            <p className="text-sm muted text-center">Room Code</p>
             <div className="flex items-center gap-2">
-              <Badge 
-                className="flex-1 justify-center text-2xl font-mono py-3 px-6 font-bold"
+              <Badge
+                className="flex-1 justify-center text-2xl font-mono py-3 px-6 font-bold badge-accent"
                 variant="secondary"
                 data-testid="text-room-code"
               >
@@ -71,8 +71,8 @@ export default function WaitingRoom({ roomCode, onCancel }: WaitingRoomProps) {
           </div>
 
           <div className="flex items-center justify-center gap-2 py-4">
-            <Loader2 className="w-5 h-5 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground" data-testid="text-waiting">
+            <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--cyber-primary)' }} />
+            <p className="text-sm muted" data-testid="text-waiting">
               Waiting for player to join...
             </p>
           </div>

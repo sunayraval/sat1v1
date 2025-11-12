@@ -86,12 +86,12 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
         <Card className="neon-container w-full">
           <CardHeader className="text-center space-y-2">
             <div className="flex justify-center mb-2">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Trophy className="w-8 h-8 text-primary" />
+              <div className="w-16 h-16 rounded-full glass flex items-center justify-center cyber-outline">
+                <Trophy className="w-8 h-8" style={{ color: 'var(--cyber-primary)' }} />
               </div>
             </div>
-            <CardTitle className="text-4xl font-bold tracking-tight">SAT Duel</CardTitle>
-            <CardDescription className="text-base">Compete. Learn. Win.</CardDescription>
+            <CardTitle className="text-4xl font-bold tracking-tight neon-heading">SAT Duel</CardTitle>
+            <CardDescription className="muted">Compete. Learn. Win.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -127,7 +127,7 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
                         </label>
                       ))
                     ) : (
-                      <p className="text-sm text-muted-foreground">No modules available</p>
+                      <p className="text-sm muted">No modules available</p>
                     )}
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
               </div>
 
               <div className="mt-4">
-                <label className="text-sm text-muted-foreground mb-1 block">Number of Questions</label>
+                <label className="text-sm muted mb-1 block">Number of Questions</label>
                 <input
                   type="number"
                   min={1}
@@ -198,8 +198,8 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
         {/* Right column: dashboard */}
         <Card className="neon-container w-full p-4">
           <CardHeader>
-            <CardTitle className="text-lg neon-text">Question Bank Overview</CardTitle>
-            <CardDescription className="text-sm">Live counts by module and difficulty</CardDescription>
+            <CardTitle className="text-lg neon-heading">Question Bank Overview</CardTitle>
+            <CardDescription className="muted text-sm">Live counts by module and difficulty</CardDescription>
           </CardHeader>
           <CardContent>
             {(() => {
@@ -218,14 +218,14 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-muted-foreground">Total questions</p>
-                      <p className="text-2xl font-bold neon-text">{total}</p>
+                      <p className="text-sm muted">Total questions</p>
+                      <p className="text-2xl font-bold neon-heading">{total}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Modules</p>
                       <div className="flex gap-2 mt-1 flex-wrap">
                         {Object.entries(byModule).map(([m, cnt]) => (
-                          <span key={m} className="px-2 py-1 rounded bg-zinc-900/50 text-sm neon-text">{m}: {cnt}</span>
+                          <span key={m} className="px-2 py-1 rounded badge-accent text-sm">{m}: {cnt}</span>
                         ))}
                       </div>
                     </div>
@@ -234,9 +234,9 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
                   <div>
                     <p className="text-sm text-muted-foreground">By difficulty</p>
                     <div className="flex gap-2 mt-1">
-                      <span className="px-2 py-1 rounded bg-zinc-900/50 text-sm">Easy: {byDifficulty.E}</span>
-                      <span className="px-2 py-1 rounded bg-zinc-900/50 text-sm">Medium: {byDifficulty.M}</span>
-                      <span className="px-2 py-1 rounded bg-zinc-900/50 text-sm">Hard: {byDifficulty.H}</span>
+                      <span className="px-2 py-1 rounded badge-accent text-sm">Easy: {byDifficulty.E}</span>
+                      <span className="px-2 py-1 rounded badge-accent text-sm">Medium: {byDifficulty.M}</span>
+                      <span className="px-2 py-1 rounded badge-accent text-sm">Hard: {byDifficulty.H}</span>
                     </div>
                   </div>
 
@@ -244,8 +244,8 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
                     <p className="text-sm text-muted-foreground">Top categories</p>
                     <div className="grid grid-cols-1 gap-2 mt-2 max-h-40 overflow-auto">
                       {Object.entries(bySkill).slice(0, 12).map(([skill, cnt]) => (
-                        <div key={skill} className="text-sm px-2 py-1 rounded bg-zinc-900/40 text-muted-foreground">
-                          <strong className="neon-text">{skill}</strong> — {cnt}
+                        <div key={skill} className="text-sm px-2 py-1 rounded badge-accent muted">
+                          <strong className="neon-heading">{skill}</strong> — {cnt}
                         </div>
                       ))}
                     </div>

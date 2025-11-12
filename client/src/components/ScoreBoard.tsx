@@ -43,12 +43,12 @@ export default function ScoreBoard({
               <User className="w-5 h-5 text-primary" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-muted-foreground">You</p>
+              <p className="text-sm you-label">You</p>
               <p className="font-semibold" data-testid="text-player-name">{playerName}</p>
             </div>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold text-primary" data-testid="text-player-score">
+            <p className="text-4xl font-bold score-value" data-testid="text-player-score">
               {playerScore}
             </p>
             <p className="text-sm text-muted-foreground mt-1">points</p>
