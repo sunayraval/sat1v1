@@ -70,6 +70,41 @@ export default function Home() {
     return Array.from(set).filter(Boolean);
   }, []);
 
+  // Deterministic shuffle helper (seeded) so fallback ordering matches across clients
+  const seededShuffle = (arr: any[], seedInput: string) => {
+    // simple xmur3 + mulberry32 seeded RNG
+    const xmur3 = (str: string) => {
+      let h = 1779033703 ^ str.length;
+      for (let i = 0; i < str.length; i++) {
+        h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+        h = (h << 13) | (h >>> 19);
+      }
+      return () => {
+        h = Math.imul(h ^ (h >>> 16), 2246822507);
+        h = Math.imul(h ^ (h >>> 13), 3266489909);
+        return (h ^= h >>> 16) >>> 0;
+      };
+    };
+
+    const mulberry32 = (a: number) => {
+      return () => {
+        let t = (a += 0x6D2B79F5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    };
+
+    const seed = xmur3(seedInput)();
+    const rand = mulberry32(seed);
+    const copy = arr.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+
   // Determine which question the room is currently on and the opponent's id
   const currentQuestionIndex = roomData?.currentQuestion || 0;
   const opponentId = roomData?.players?.find((id) => id !== playerId);
@@ -121,8 +156,11 @@ export default function Home() {
       filtered = [...filtered, ...otherQuestions];
     }
 
-    // Randomize the order (this only runs when no persisted questions exist)
-    filtered = [...filtered].sort(() => Math.random() - 0.5);
+  // Randomize the order deterministically using the room code as a seed so both
+  // clients will produce the same fallback order if the persisted `questions`
+  // array hasn't arrived yet.
+  const seed = roomCode || JSON.stringify(roomData?.config) || "default-seed";
+  filtered = seededShuffle(filtered, seed);
 
     if (num && num > 0) {
       filtered = filtered.slice(0, num);

@@ -1,28 +1,87 @@
 
-/* neon.css — single, minimal validated theme (complete replacement) */
+/*
+  neon.css — Single-file theme with clear, editable variables
+
+  HOW TO TUNE THE THEME (quick guide)
+  - Fonts: change the `--font-sans` and `--font-heading` variables below and
+    then update the `body` font-family and `.neon-heading` if desired.
+  - Accent / Glow: change `--neon-accent-rgb` (R,G,B) and the glow variables
+    `--neon-glow` / `--neon-outline` further below. Use smaller alpha values
+    for subtler glow, larger for stronger neon.
+  - Global sizing / radii: adjust `--radius` and `--control-padding` to scale
+    card curvature and the spacing inside controls.
+  - Image rules: `.question-image-card` enforces white/black layout for image-
+    attached questions. Do NOT invert images inside that card (images keep
+    their original colors regardless of the global `img[data-theme]` rule).
+
+  File structure (quick):
+  - :root variables
+  - Base layout (body, html)
+  - Container & heading styles
+  - Question card and answer styles
+  - Image handling and accessibility
+
+  Example: to make glow more intense, increase the alpha in `--neon-outline` or
+  increase the spread in `--neon-glow` (e.g. `0 8px 40px rgba(...,0.12)`).
+*/
 
 :root{
-  --neon-primary-rgb:16,185,129;
-  --dark-bg:#09090b;
-  --dark-surface:rgba(24,24,27,0.92);
-  --text-primary:#fafafa;
+  /* Primary accent color (RGB) - change this to rebrand the whole theme */
+  --neon-accent-rgb: 108, 243, 255; /* comma-separated R,G,B */
+
+  /* Fonts - change these two to update fonts globally */
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-heading: "Poppins", var(--font-sans);
+
+  /* Core palette */
+  --dark-bg: #000000; /* page background */
+  --dark-surface: rgba(24,24,27,0.92); /* card surface */
+  --text-primary: #ffffff; /* main text color on dark surfaces */
+
+  /* Sizing / layout */
+  --radius: 12px; /* border radius for primary containers */
+  --control-padding: 0.9rem; /* padding inside buttons/answers */
+
+  /* Glow and outline (use these to tune neon intensity) */
+  --neon-glow: 0 6px 32px rgba(var(--neon-accent-rgb), 0.06); /* softer base glow */
+  --neon-outline: 0 0 18px rgba(var(--neon-accent-rgb), 0.10); /* outline used on hover/active */
+
+  /* Utility colors */
+  --muted: rgba(255,255,255,0.6);
+  --glass: rgba(255,255,255,0.03);
 }
 
-/* Base */
+/* ----------------------
+   Base styles
+   - Change global fonts via --font-sans and --font-heading in :root above
+   - Use this area to tweak global line-height, font-smoothing, or page-level
+     background layers (gradients, vignette, etc.)
+   ---------------------- */
 html,body{height:100%}
-body{margin:0;background:var(--dark-bg);color:var(--text-primary);font-family:Inter, "Poppins", "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{margin:0;background:var(--dark-bg);color:var(--text-primary);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 
 /* Container */
-.neon-container{background:var(--dark-surface);border-radius:10px;border:1px solid rgba(var(--neon-primary-rgb),0.06);box-shadow:0 6px 22px rgba(0,0,0,0.6)}
+/* ----------------------
+  Container / card surface
+  - `--dark-surface` controls the fill of cards and panels
+  - Tweak box-shadow / border here to increase/decrease perceived depth
+  ---------------------- */
+.neon-container{background:var(--dark-surface);border-radius:var(--radius);border:1px solid rgba(var(--neon-accent-rgb),0.06);box-shadow:var(--neon-glow)}
 
 /* Questions */
 .question-content{color:var(--text-primary);line-height:1.7;font-size:1.03rem}
 .question-text{font-size:1.12rem}
 
+/* ----------------------
+  Answer option cards
+  - Modify `--control-padding` and border-radius to scale controls
+  - Change `.answer-option.selected` background / border to adjust selected state
+  - The hover outline uses --neon-outline for consistency with other elements
+  ---------------------- */
 .answer-options{display:grid;gap:.9rem}
-.answer-option{background:var(--dark-surface);border-radius:8px;padding:.9rem;border:1px solid rgba(255,255,255,0.03);transition:all .18s ease}
-.answer-option:hover:not(:disabled){box-shadow:0 0 6px rgba(16,185,129,0.04);transform:translateY(-1px)}
-.answer-option.selected{border:1px solid rgba(16,185,129,0.10);background:rgba(16,185,129,0.02)}
+.answer-option{background:var(--dark-surface);border-radius:8px;padding:var(--control-padding);border:1px solid rgba(255,255,255,0.03);transition:all .18s ease}
+.answer-option:hover:not(:disabled){box-shadow:var(--neon-outline);transform:translateY(-1px)}
+.answer-option.selected{border:1px solid rgba(var(--neon-accent-rgb),0.10);background:rgba(var(--neon-accent-rgb),0.02)}
 
 /* Images */
 .question-content img{max-width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
@@ -30,6 +89,11 @@ img[data-theme="dark"]{filter:brightness(1.05) contrast(1.12) invert(1) hue-rota
 
 /* Image-attached questions: white card, black text, preserve original image colors */
 .question-image-card{background:#fff;color:#000!important}
+/*
+  `.question-image-card` is intentionally stark: white background and black text.
+  This makes image content readable and preserves their original colors.
+  If you change the card background, make sure to keep the text contrast high.
+*/
 .question-image-card .question-text,.question-image-card .question-content{color:#000!important}
 .question-image-card img{filter:none!important}
 
@@ -39,7 +103,7 @@ img[data-theme="dark"]{filter:brightness(1.05) contrast(1.12) invert(1) hue-rota
 
 /* --- Enhanced neon styling (polished) --- */
 :root{
-  --neon-accent: rgb(16,185,129);
+  --neon-accent: rgb(80, 205, 236);
   --neon-accent-rgb: 16,185,129;
   --glass: rgba(255,255,255,0.03);
   --muted: rgba(255,255,255,0.6);
@@ -52,14 +116,14 @@ img[data-theme="dark"]{filter:brightness(1.05) contrast(1.12) invert(1) hue-rota
 
 /* page background with subtle vignette and noise-like gradient */
 body {
-  background: radial-gradient(1200px 600px at 10% 10%, rgba(16,24,30,0.35), transparent),
-              linear-gradient(180deg, rgba(4,6,7,0.6), rgba(6,8,10,0.95));
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(0, 0, 0, 0.35), transparent),
+              linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.95));
   background-color: var(--dark-bg);
   color: var(--text-primary);
 }
 
 .neon-container {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(255,255,255,0.01));
   border-radius: var(--radius);
   border: 1px solid rgba(var(--neon-accent-rgb), 0.06);
   box-shadow: var(--neon-glow), 0 6px 28px rgba(0,0,0,0.65);

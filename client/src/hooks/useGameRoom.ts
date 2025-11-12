@@ -117,90 +117,43 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     numQuestions?: number;
     skills?: string[];
   }) => {
-    if (!database) return;
+    if (!database) return false;
 
     try {
-      // Filter questions based on config
-      let availableQuestions = satQuestions;
-      if (config?.modules?.length) {
-        availableQuestions = availableQuestions.filter(q => 
-          config.modules?.includes(q.module.toLowerCase())
-        );
+      const roomRef = ref(database, `rooms/${newRoomId}`);
+
+      // Normalize config for reliable filtering
+      const modulesLower = config?.modules?.map(m => String(m).toLowerCase()) || [];
+      const difficulties = config?.difficulties || [];
+      const num = config?.numQuestions || 10;
+
+      // Filter questions deterministically on the server-side (creator client)
+      let filtered = satQuestions.slice();
+      if (modulesLower.length > 0) {
+        filtered = filtered.filter((q) => modulesLower.includes((q.module || "").toLowerCase()));
       }
-      if (config?.difficulties?.length) {
-        availableQuestions = availableQuestions.filter(q => 
-          config.difficulties?.includes(q.difficulty || "M")
-        );
+      if (difficulties.length > 0) {
+        filtered = filtered.filter((q) => q.difficulty && difficulties.includes(q.difficulty));
       }
 
-      // Shuffle and select questions
-      const shuffled = availableQuestions
-        .sort(() => Math.random() - 0.5)
-        .slice(0, config?.numQuestions || 10);
+      // Shuffle (non-cryptographic) and pick requested number
+      const shuffled = filtered.sort(() => Math.random() - 0.5).slice(0, num);
 
       if (shuffled.length === 0) {
-        throw new Error("No questions available for selected criteria");
+        console.error("No questions available for selected criteria");
+        return false;
       }
 
-      // Create the room with filtered questions
-      const roomRef = ref(database, `rooms/${newRoomId}`);
-      await set(roomRef, {
-        currentQuestion: 0,
-        started: false,
-        players: [playerId],
-        scores: { [playerId]: 0 },
-        config,
-        questions: shuffled.map(q => q.id)
-      });
-
-      return true;
-    } catch (error) {
-      console.error("Error creating room:", error);
-      return false;
-    }
-
-    try {
-      const roomRef = ref(database, `rooms/${roomCode}`);
-      // If a creator provided config, select and persist the question list now so all players
-      // see the same questions in the same order. Selection happens only when creating the room.
-      let questionIds: string[] | undefined = undefined;
-      try {
-        const all = (Array.isArray(satQuestions) ? satQuestions : Object.values(satQuestions as any)) as any[];
-        let filtered: any[] = all;
-
-        const modules = config?.modules;
-        const difficulties = config?.difficulties;
-        const num = config?.numQuestions;
-
-        if (modules && modules.length > 0) {
-          filtered = filtered.filter((q) => modules.includes(q.module));
-        }
-        if (difficulties && difficulties.length > 0) {
-          filtered = filtered.filter((q) => q.difficulty && difficulties.includes(q.difficulty));
-        }
-
-        // Randomize order on room creation only
-        filtered = [...filtered].sort(() => Math.random() - 0.5);
-
-        if (num && num > 0) {
-          filtered = filtered.slice(0, num);
-        }
-
-        if (filtered.length > 0) {
-          questionIds = filtered.map((q) => q.id);
-        }
-      } catch (err) {
-        console.error("Error selecting questions for room:", err);
-      }
-
+      // Persist the room and the selected question order so all clients use the same list
       await set(roomRef, {
         currentQuestion: 0,
         started: false,
         players: [playerId],
         scores: { [playerId]: 0 },
         config: config || undefined,
-        questions: questionIds || undefined,
+        questions: shuffled.map((q) => q.id),
       });
+
       return true;
     } catch (error) {
       console.error("Error creating room:", error);
