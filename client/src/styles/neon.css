@@ -60,17 +60,22 @@
 html,body{height:100%}
 body{margin:0;background:var(--dark-bg);color:var(--text-primary);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 
-/* Container */
-/* ----------------------
-  Container / card surface
-  - `--dark-surface` controls the fill of cards and panels
-  - Tweak box-shadow / border here to increase/decrease perceived depth
-  ---------------------- */
+/* Container / card surface
+   - `--dark-surface` controls the fill of cards and panels
+   - Tweak box-shadow / border here to increase/decrease perceived depth
+*/
 .neon-container{background:var(--dark-surface);border-radius:var(--radius);border:1px solid rgba(var(--neon-accent-rgb),0.06);box-shadow:var(--neon-glow)}
 
 /* Questions */
 .question-content{color:var(--text-primary);line-height:1.7;font-size:1.03rem}
 .question-text{font-size:1.12rem}
+  .neon-container {
+    background: linear-gradient(180deg, rgba(0,0,0,0.22), rgba(0,0,0,0.14));
+    border-radius: var(--radius);
+    border: 1px solid rgba(var(--neon-accent-rgb), 0.06);
+    box-shadow: var(--neon-glow), 0 6px 28px rgba(0,0,0,0.65);
+    backdrop-filter: blur(6px) saturate(115%);
+  }
 
 /* ----------------------
   Answer option cards
@@ -78,22 +83,36 @@ body{margin:0;background:var(--dark-bg);color:var(--text-primary);font-family:va
   - Change `.answer-option.selected` background / border to adjust selected state
   - The hover outline uses --neon-outline for consistency with other elements
   ---------------------- */
+  .question-card {
+    padding: 1.25rem;
+    border-radius: calc(var(--radius) - 2px);
+    background: linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.08));
+    border: 1px solid rgba(var(--cyber-primary-rgb), 0.04);
+  }
 .answer-options{display:grid;gap:.9rem}
 .answer-option{background:var(--dark-surface);border-radius:8px;padding:var(--control-padding);border:1px solid rgba(255,255,255,0.03);transition:all .18s ease}
 .answer-option:hover:not(:disabled){box-shadow:var(--neon-outline);transform:translateY(-1px)}
 .answer-option.selected{border:1px solid rgba(var(--neon-accent-rgb),0.10);background:rgba(var(--neon-accent-rgb),0.02)}
+  .answer-option {
+    display:flex;align-items:center;gap:.8rem;padding:var(--control-padding);border-radius:8px;background:linear-gradient(180deg, rgba(0,0,0,0.14), rgba(0,0,0,0.06));border:1px solid rgba(var(--cyber-primary-rgb),0.04);transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
 
 /* Images */
 .question-content img{max-width:100%;height:auto;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+  .answer-option.selected{ border-color: rgba(var(--neon-accent-rgb),0.12); background: linear-gradient(180deg, rgba(var(--neon-accent-rgb),0.03), rgba(0,0,0,0.02)); }
 img[data-theme="dark"]{filter:brightness(1.05) contrast(1.12) invert(1) hue-rotate(180deg)}
 
+  .btn-neon{ background: linear-gradient(90deg, rgba(var(--neon-accent-rgb),0.14), rgba(var(--neon-accent-rgb),0.08)); color: var(--text-primary); padding:.6rem .9rem; border-radius:8px; border:1px solid rgba(var(--neon-accent-rgb),0.14); box-shadow: 0 8px 30px rgba(var(--neon-accent-rgb),0.06); }
 /* Image-attached questions: white card, black text, preserve original image colors */
 .question-image-card{background:#fff;color:#000!important}
 /*
+  .question-image-card{background:#ffffff;color:#000!important}
   `.question-image-card` is intentionally stark: white background and black text.
   This makes image content readable and preserves their original colors.
+  .dashboard-item { padding:.8rem; border-radius:8px; background: var(--panel); border: 1px solid rgba(var(--cyber-primary-rgb),0.04); }
   If you change the card background, make sure to keep the text contrast high.
 */
+  .toast { padding:.6rem .9rem; border-radius:8px; background: linear-gradient(90deg, rgba(0,0,0,0.3), rgba(0,0,0,0.2)); border:1px solid rgba(var(--cyber-primary-rgb),0.04); color: var(--text-100); box-shadow: var(--glow-medium); }
 .question-image-card .question-text,.question-image-card .question-content{color:#000!important}
 .question-image-card img{filter:none!important}
 
