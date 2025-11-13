@@ -342,6 +342,15 @@ img[data-theme="dark"] { filter: brightness(1.05) contrast(1.1) invert(1) hue-ro
 .muted { color: var(--muted-70); }
 .caps { text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; }
 
+/* When a card uses a light/white surface (like the lobby example),
+   force readable dark text on that card. Use this sparingly for
+   intentionally light cards (e.g. landing/lobby, password entry).
+*/
+.light-on-light { color: #000 !important; }
+.light-on-light .muted { color: rgba(0,0,0,0.6) !important; }
+.light-on-light .neon-heading { color: #000 !important; }
+.light-on-light .badge-accent { background: rgba(0,0,0,0.03) !important; color: #000 !important; }
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 

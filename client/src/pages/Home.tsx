@@ -413,7 +413,7 @@ export default function Home() {
         <div style={{ position: 'absolute', top: 16, right: 16 }}>
           <Button size="sm" variant="outline" onClick={handleAdminGetPassword}>Get password</Button>
         </div>
-        <Card className="w-full max-w-md neon-container">
+  <Card className="w-full max-w-md neon-container light-on-light">
           <CardContent className="p-6 text-center">
             <h2 className="text-2xl neon-heading mb-2">Enter 4-digit password</h2>
             <p className="muted text-sm mb-4">Enter today's access code to continue</p>
