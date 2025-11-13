@@ -32,6 +32,83 @@ import { useGameRoom } from "@/hooks/useGameRoom";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
+  // Local lock state — app shows password entry screen until unlocked for the day
+  const [unlocked, setUnlocked] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem("satDuelUnlockedDate");
+      const today = new Date().toISOString().slice(0, 10);
+      return stored === today;
+    } catch (e) {
+      return false;
+    }
+  });
+  const [passwordInput, setPasswordInput] = useState("");
+  const [showAdminPrompt, setShowAdminPrompt] = useState(false);
+
+  const DAILY_SALT = "sat-duel-daily-salt-v1"; // deterministic salt for generating daily code
+
+  // simple seeded hash -> 32bit int (xmur3)
+  const xmur3 = (str: string) => {
+    let h = 1779033703 ^ str.length;
+    for (let i = 0; i < str.length; i++) {
+      h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+      h = (h << 13) | (h >>> 19);
+    }
+    return () => {
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+    };
+  };
+
+  const getDailyPassword = (d = new Date()) => {
+    const day = d.toISOString().slice(0, 10); // YYYY-MM-DD
+    const seed = xmur3(day + DAILY_SALT)();
+    const pw = seed % 10000;
+    return pw.toString().padStart(4, "0");
+  };
+
+  // admin code as requested (hard-coded)
+  const ADMIN_CODE = "197577";
+
+  // Check stored unlock expiry on mount and whenever day changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const stored = localStorage.getItem("satDuelUnlockedDate");
+        const today = new Date().toISOString().slice(0, 10);
+        if (stored !== today) {
+          setUnlocked(false);
+        }
+      } catch (e) {
+        // ignore
+      }
+    }, 60 * 1000); // check every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  const unlockWithPassword = (pw: string) => {
+    const expected = getDailyPassword();
+    if (pw === expected) {
+      const today = new Date().toISOString().slice(0, 10);
+      localStorage.setItem("satDuelUnlockedDate", today);
+      setUnlocked(true);
+      return true;
+    }
+    return false;
+  };
+
+  const handleAdminGetPassword = async () => {
+    const code = window.prompt("Enter admin code to reveal today's password:");
+    if (!code) return;
+    if (code === ADMIN_CODE) {
+      const pass = getDailyPassword();
+      toast({ title: "Daily password", description: `Today's password is ${pass}` });
+    } else {
+      toast({ title: "Invalid admin code", variant: "destructive" });
+    }
+  };
+
   const [gameState, setGameState] = useState<GameState>("lobby");
   const [roomCode, setRoomCode] = useState("");
   const [selectedAnswer, setSelectedAnswer] = useState<number | undefined>();
@@ -328,6 +405,47 @@ export default function Home() {
     setGameState("lobby");
     setRoomCode("");
   };
+
+  // If app locked for the day, show password entry screen before any other UI
+  if (!unlocked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 home-container">
+        <div style={{ position: 'absolute', top: 16, right: 16 }}>
+          <Button size="sm" variant="outline" onClick={handleAdminGetPassword}>Get password</Button>
+        </div>
+        <Card className="w-full max-w-md neon-container">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-2xl neon-heading mb-2">Enter 4-digit password</h2>
+            <p className="muted text-sm mb-4">Enter today's access code to continue</p>
+            <input
+              type="password"
+              inputMode="numeric"
+              maxLength={4}
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value.replace(/[^0-9]/g, '').slice(0,4))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  const ok = unlockWithPassword(passwordInput);
+                  if (!ok) toast({ title: 'Incorrect password', variant: 'destructive' });
+                }
+              }}
+              className="w-40 mx-auto text-center text-2xl py-3 rounded-md bg-transparent border border-white/10"
+            />
+            <div className="mt-4 flex gap-2 justify-center">
+              <Button onClick={() => {
+                const ok = unlockWithPassword(passwordInput);
+                if (!ok) toast({ title: 'Incorrect password', variant: 'destructive' });
+              }}>
+                Submit
+              </Button>
+              <Button variant="ghost" onClick={() => setPasswordInput('')}>Clear</Button>
+            </div>
+            <p className="text-xs muted mt-4">The 4-digit code rotates daily.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (gameState === "lobby") {
     return <GameLobby onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} />;
