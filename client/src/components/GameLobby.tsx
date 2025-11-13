@@ -187,7 +187,7 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
                 onClick={handleJoinRoom}
                 variant="outline"
                 size="lg"
-                className="h-12"
+                className="h-12 btn-join"
               >
                 Join Room
               </Button>

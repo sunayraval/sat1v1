@@ -251,15 +251,16 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   color: var(--text-100);
-  background-color: var(--bg-900);
-  background-image:
-    radial-gradient(800px 400px at 10% 10%, rgba(0,0,0,0.2), transparent),
-    linear-gradient(180deg, rgba(0,6,15,0.55), rgba(2,4,8,0.9)),
-    linear-gradient(90deg, rgba(0,10,30,0.25), rgba(0,0,0,0));
+  /* Use a solid black background for maximum contrast and consistent terminal look */
+  background-image: none !important;
+  background-color: #000 !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.45;
 }
+
+/* Force any outer app container to use solid black as well */
+html, body, #root, .home-container { background-color: #000 !important; }
 
 /* Utility helpers used across the theme */
 .cyber-glow { box-shadow: var(--glow-medium); }
@@ -287,8 +288,22 @@ a:hover { color: var(--cyber-accent); text-decoration: underline; }
 .btn { display:inline-flex; align-items:center; gap:.6rem; padding:.6rem .9rem; border-radius:8px; border:1px solid rgba(255,255,255,0.04); background: transparent; color:var(--text-100); cursor:pointer; transition: transform var(--ease-fast) ease, box-shadow var(--ease-fast) ease, background var(--ease-fast) ease; }
 .btn:hover { transform: translateY(-2px); }
 .btn-primary { background: linear-gradient(90deg, rgba(var(--cyber-primary-rgb),0.14), rgba(var(--cyber-accent-rgb),0.08)); box-shadow: var(--glow-outline); border-color: rgba(var(--cyber-primary-rgb),0.14); color: #001015; font-weight:600; }
+.btn-join { color: #ffffff !important; }
 .btn-outline { border: 1px solid rgba(255,255,255,0.06); }
 .btn-ghost { background: transparent; border: none; }
+
+/* Improved input focus for UX */
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 6px 30px rgba(var(--cyber-primary-rgb), 0.12);
+  border-color: rgba(var(--cyber-primary-rgb), 0.22);
+  outline: none;
+}
+
+/* Slightly larger controls for better tap/click targets */
+.answer-option, .btn, input[type="number"], input[type="text"], select { min-height: 44px; }
+
+/* Reduce motion for non-critical animations but keep neon pulses */
+* { transition: background-color 160ms ease, color 160ms ease, transform 160ms ease; }
 
 /* Inputs / selects / textareas */
 input[type="text"], input[type="number"], select, textarea { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: var(--text-100); padding:.6rem .8rem; border-radius:8px; outline: none; transition: box-shadow var(--ease-fast) ease, border-color var(--ease-fast) ease; }
