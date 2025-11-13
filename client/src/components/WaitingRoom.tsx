@@ -35,7 +35,7 @@ export default function WaitingRoom({ roomCode, onCancel }: WaitingRoomProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 home-container">
-  <Card className="w-full max-w-md neon-container light-on-light">
+  <Card className="w-full max-w-md neon-container terminal-panel">
         <CardHeader className="text-center space-y-4 neon-text">
           <div className="flex justify-center">
             <div className="w-16 h-16 rounded-full glass flex items-center justify-center cyber-outline">

@@ -351,6 +351,127 @@ img[data-theme="dark"] { filter: brightness(1.05) contrast(1.1) invert(1) hue-ro
 .light-on-light .neon-heading { color: #000 !important; }
 .light-on-light .badge-accent { background: rgba(0,0,0,0.03) !important; color: #000 !important; }
 
+/* Make form controls readable on light cards */
+.light-on-light input,
+.light-on-light select,
+.light-on-light textarea {
+  color: #000 !important;
+  background: rgba(255,255,255,0.96) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+}
+.light-on-light input::placeholder,
+.light-on-light textarea::placeholder {
+  color: rgba(0,0,0,0.45) !important;
+}
+.light-on-light label,
+.light-on-light span,
+.light-on-light .capitalize {
+  color: #000 !important;
+}
+.light-on-light .grid input[type="checkbox"],
+.light-on-light input[type="checkbox"] {
+  accent-color: var(--cyber-primary) !important;
+}
+
+/* Terminal-style panel for a hacker/console look */
+.terminal-panel {
+  background: linear-gradient(180deg, rgba(2,6,12,0.85), rgba(0,0,0,0.85));
+  border: 1px solid rgba(var(--cyber-primary-rgb), 0.08);
+  box-shadow: 0 12px 40px rgba(var(--cyber-primary-rgb), 0.10), inset 0 1px 0 rgba(255,255,255,0.02);
+  color: var(--text-100);
+}
+.terminal-panel .neon-heading { color: var(--cyber-primary) !important; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; }
+.terminal-panel .neon-text { color: var(--cyber-primary) !important; }
+.terminal-panel input, .terminal-panel select, .terminal-panel textarea {
+  background: transparent !important; color: var(--text-100) !important; border: 1px solid rgba(var(--cyber-primary-rgb), 0.06) !important; box-shadow: none !important;
+}
+.terminal-panel input::placeholder { color: rgba(var(--cyber-primary-rgb), 0.18) !important; }
+.terminal-panel .badge-accent { background: rgba(var(--cyber-primary-rgb),0.06) !important; color: #001015 !important; }
+.terminal-panel .muted { color: rgba(234,252,255,0.6) !important; }
+.terminal-panel .glass { background: rgba(0,0,0,0.28) !important; }
+
+/* Neon animations */
+@keyframes neon-flicker {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 6px 20px rgba(var(--cyber-primary-rgb),0.12)); }
+  50% { opacity: 0.92; filter: drop-shadow(0 6px 30px rgba(var(--cyber-primary-rgb),0.06)); }
+}
+@keyframes neon-pulse {
+  0% { text-shadow: 0 6px 20px rgba(var(--cyber-primary-rgb),0.12); }
+  50% { text-shadow: 0 10px 40px rgba(var(--cyber-primary-rgb),0.16); }
+  100% { text-shadow: 0 6px 20px rgba(var(--cyber-primary-rgb),0.12); }
+}
+.terminal-panel .neon-heading {
+  animation: neon-flicker 3.6s linear infinite, neon-pulse 4.5s ease-in-out infinite;
+}
+
+/* Terminal input wrapper with neon underline / cursor-like animation */
+.terminal-input-wrapper { position: relative; display: inline-block; width: 10rem; }
+.terminal-input-wrapper input {
+  width: 100%; padding: .6rem .7rem; background: transparent; border: none; border-bottom: 1px solid rgba(var(--cyber-primary-rgb), 0.08); outline: none; color: var(--text-100); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace; font-size: 1.6rem; letter-spacing: .12em; caret-color: var(--cyber-primary);
+}
+.terminal-input-wrapper input::placeholder { color: rgba(var(--cyber-primary-rgb),0.12); }
+.terminal-input-wrapper .terminal-underline {
+  position: absolute; left: 0; right: 0; bottom: 6px; height: 2px; background: rgba(var(--cyber-primary-rgb),0.12); transform-origin: left center; transition: transform 180ms ease, box-shadow 180ms ease, opacity 120ms ease; box-shadow: 0 6px 20px rgba(var(--cyber-primary-rgb),0.06);
+}
+.terminal-input-wrapper.focused .terminal-underline,
+.terminal-input-wrapper.typing .terminal-underline {
+  transform: scaleX(1); background: linear-gradient(90deg, rgba(var(--cyber-primary-rgb),0.9), rgba(var(--cyber-accent-rgb),0.6)); box-shadow: 0 12px 40px rgba(var(--cyber-primary-rgb),0.16);
+}
+.terminal-input-wrapper .terminal-underline { transform: scaleX(0.02); }
+
+/* subtle caret effect using a pseudo-element */
+.terminal-input-wrapper .caret {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 2px; height: 1.2rem; background: var(--cyber-primary); opacity: 0; box-shadow: 0 6px 18px rgba(var(--cyber-primary-rgb),0.12);
+  animation: caret-blink 1s steps(2, start) infinite;
+}
+@keyframes caret-blink { 0%,50% { opacity: 1 } 51%,100% { opacity: 0 } }
+.terminal-input-wrapper.focused .caret { opacity: 1; }
+
+/* Score pulse animation for when a score updates */
+.score-pulse {
+  animation: score-pop 900ms cubic-bezier(.2,.9,.2,1);
+}
+@keyframes score-pop {
+  0% { transform: scale(1); filter: drop-shadow(0 8px 24px rgba(var(--cyber-primary-rgb),0.12)); }
+  30% { transform: scale(1.12); filter: drop-shadow(0 20px 60px rgba(var(--cyber-primary-rgb),0.22)); }
+  100% { transform: scale(1); filter: drop-shadow(0 8px 24px rgba(var(--cyber-primary-rgb),0.12)); }
+}
+
+/* Answer option interactions */
+.answer-option { transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease; }
+.answer-option:hover:not(:disabled) { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(var(--cyber-primary-rgb),0.06); }
+.answer-option.selected { transform: translateY(-8px) scale(1.01); box-shadow: 0 16px 50px rgba(var(--cyber-primary-rgb),0.10); }
+.answer-option.correct { animation: answer-correct 900ms ease both; }
+.answer-option.incorrect { animation: answer-wrong 700ms ease both; }
+@keyframes answer-correct {
+  0% { box-shadow: 0 6px 20px rgba(34,197,94,0.06); transform: translateY(0) }
+  40% { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 60px rgba(34,197,94,0.12); }
+  100% { transform: translateY(0); box-shadow: 0 6px 20px rgba(34,197,94,0.06); }
+}
+@keyframes answer-wrong {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+
+/* Button neon hover pulse */
+.btn-primary:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 18px 60px rgba(var(--cyber-primary-rgb),0.14); }
+
+/* Subtle background motion for terminal panels */
+.terminal-panel { position: relative; overflow: hidden; }
+.terminal-panel::before {
+  content: '';
+  position: absolute; inset: -40% -20% -40% -20%;
+  background: radial-gradient(600px 200px at 10% 10%, rgba(var(--cyber-primary-rgb),0.03), transparent), radial-gradient(500px 180px at 90% 80%, rgba(var(--cyber-accent-rgb),0.02), transparent);
+  opacity: 0.9; transform: translateZ(0);
+  animation: bg-slide 18s linear infinite;
+  pointer-events: none;
+}
+@keyframes bg-slide { 0% { transform: translateX(-6%); } 50% { transform: translateX(6%); } 100% { transform: translateX(-6%); } }
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 

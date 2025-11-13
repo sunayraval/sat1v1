@@ -6,6 +6,7 @@
   only and receives all data via props.
 */
 import { Card } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import "@/styles/scoreboard.css";
 import { Badge } from "@/components/ui/badge";
 import { User, Target } from "lucide-react";
@@ -27,6 +28,25 @@ export default function ScoreBoard({
   playerName = "You",
   opponentName = "Opponent",
 }: ScoreBoardProps) {
+  const [playerPulse, setPlayerPulse] = useState(false);
+  const [opponentPulse, setOpponentPulse] = useState(false);
+
+  // Pulse animation when scores change
+  useEffect(() => {
+    if (playerScore !== undefined) {
+      setPlayerPulse(true);
+      const t = setTimeout(() => setPlayerPulse(false), 900);
+      return () => clearTimeout(t);
+    }
+  }, [playerScore]);
+
+  useEffect(() => {
+    if (opponentScore !== undefined) {
+      setOpponentPulse(true);
+      const t = setTimeout(() => setOpponentPulse(false), 900);
+      return () => clearTimeout(t);
+    }
+  }, [opponentScore]);
   return (
     <div className="w-full max-w-4xl mx-auto p-4 space-y-4 scoreboard-container">
       <div className="flex items-center justify-center gap-2 mb-2">
@@ -48,7 +68,7 @@ export default function ScoreBoard({
             </div>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold score-value" data-testid="text-player-score">
+            <p className={`text-4xl font-bold score-value ${playerPulse ? 'score-pulse' : ''}`} data-testid="text-player-score">
               {playerScore}
             </p>
             <p className="text-sm text-muted-foreground mt-1">points</p>
@@ -66,7 +86,7 @@ export default function ScoreBoard({
             </div>
           </div>
           <div className="text-center">
-            <p className="text-4xl font-bold" data-testid="text-opponent-score">
+            <p className={`text-4xl font-bold score-value ${opponentPulse ? 'score-pulse' : ''}`} data-testid="text-opponent-score">
               {opponentScore}
             </p>
             <p className="text-sm text-muted-foreground mt-1">points</p>

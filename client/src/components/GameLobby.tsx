@@ -83,7 +83,7 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
   return (
     <div className="min-h-screen p-6 home-container">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-  <Card className="neon-container w-full light-on-light">
+  <Card className="neon-container w-full terminal-panel">
           <CardHeader className="text-center space-y-2">
             <div className="flex justify-center mb-2">
               <div className="w-16 h-16 rounded-full glass flex items-center justify-center cyber-outline">
@@ -196,7 +196,7 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
         </Card>
 
         {/* Right column: dashboard */}
-  <Card className="neon-container w-full p-4 light-on-light">
+  <Card className="neon-container w-full p-4 terminal-panel">
           <CardHeader>
             <CardTitle className="text-lg neon-heading">Question Bank Overview</CardTitle>
             <CardDescription className="muted text-sm">Live counts by module and difficulty</CardDescription>

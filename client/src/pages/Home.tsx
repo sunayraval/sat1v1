@@ -43,6 +43,7 @@ export default function Home() {
     }
   });
   const [passwordInput, setPasswordInput] = useState("");
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const [showAdminPrompt, setShowAdminPrompt] = useState(false);
 
   const DAILY_SALT = "sat-duel-daily-salt-v1"; // deterministic salt for generating daily code
@@ -413,24 +414,31 @@ export default function Home() {
         <div style={{ position: 'absolute', top: 16, right: 16 }}>
           <Button size="sm" variant="outline" onClick={handleAdminGetPassword}>Get password</Button>
         </div>
-  <Card className="w-full max-w-md neon-container light-on-light">
+  <Card className="w-full max-w-md neon-container terminal-panel">
           <CardContent className="p-6 text-center">
             <h2 className="text-2xl neon-heading mb-2">Enter 4-digit password</h2>
             <p className="muted text-sm mb-4">Enter today's access code to continue</p>
-            <input
-              type="password"
-              inputMode="numeric"
-              maxLength={4}
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value.replace(/[^0-9]/g, '').slice(0,4))}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  const ok = unlockWithPassword(passwordInput);
-                  if (!ok) toast({ title: 'Incorrect password', variant: 'destructive' });
-                }
-              }}
-              className="w-40 mx-auto text-center text-2xl py-3 rounded-md bg-transparent border border-white/10"
-            />
+            <div className={`terminal-input-wrapper ${isInputFocused || passwordInput.length>0 ? 'focused typing' : ''}`}>
+              <input
+                type="password"
+                inputMode="numeric"
+                maxLength={4}
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value.replace(/[^0-9]/g, '').slice(0,4))}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const ok = unlockWithPassword(passwordInput);
+                    if (!ok) toast({ title: 'Incorrect password', variant: 'destructive' });
+                  }
+                }}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
+                placeholder="0000"
+                className="mx-auto text-center"
+              />
+              <span className="terminal-underline" />
+              <span className="caret" />
+            </div>
             <div className="mt-4 flex gap-2 justify-center">
               <Button onClick={() => {
                 const ok = unlockWithPassword(passwordInput);
