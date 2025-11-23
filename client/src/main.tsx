@@ -11,6 +11,9 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import "./index.css";
 // Global theme: import after index.css so variables and utility layers are available.
 import "./styles/neon.css";
+// Final overrides for math and punctuation rendering. Imported last so
+// it can override theme rules that enable ligatures/contextual alternates.
+import "./styles/math-fix.css";
 
 createRoot(document.getElementById("root")!).render(
 	<ErrorBoundary>

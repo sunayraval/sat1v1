@@ -12,7 +12,10 @@
 }
 
 .question-content {
-  font-feature-settings: "kern" 1, "liga" 1;
+  /* Disable ligatures here as well — math/KaTeX rendering must not
+     collapse or hide punctuation like parentheses. Keep kerning. */
+  font-feature-settings: "kern" 1, "liga" 0;
+  -webkit-font-feature-settings: "liga" 0;
   line-height: 1.6;
 }
 

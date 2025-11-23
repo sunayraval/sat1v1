@@ -18,7 +18,11 @@
 }
 
 .question-content {
-  font-feature-settings: "kern" 1, "liga" 1;
+  /* Keep kerning but disable ligatures and contextual alternates so
+     punctuation (parentheses, commas) are preserved exactly as authored */
+  font-feature-settings: "kern" 1, "liga" 0, "calt" 0 !important;
+  font-variant-ligatures: none !important;
+  -webkit-font-feature-settings: "liga" 0 !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
@@ -26,6 +30,9 @@
 .question-content span.latex,
 .question-content .MathJax_Display {
   font-family: "Computer Modern", Georgia, serif;
+  /* ensure math spans don't get ligature transformations */
+  font-feature-settings: "liga" 0, "calt" 0 !important;
+  font-variant-ligatures: none !important;
 }
 
 /* Fix parentheses visibility */
@@ -41,17 +48,17 @@
 .question-content span.latex,
 .question-content .MathJax_Display {
   font-variant-ligatures: none !important;
-  font-feature-settings: "liga" 0 !important;
+  font-feature-settings: "liga" 0, "calt" 0 !important;
   -webkit-font-feature-settings: "liga" 0 !important;
   -moz-font-feature-settings: "liga" 0 !important;
 }
 
 /* Ensure question text is high-contrast and readable */
-.question-content,
-.question-stem,
-.question-stimulus,
-.question-content .prose,
-.question-content .prose * {
+.question-container:not(.question-image-card) .question-content,
+.question-container:not(.question-image-card) .question-stem,
+.question-container:not(.question-image-card) .question-stimulus,
+.question-container:not(.question-image-card) .question-content .prose,
+.question-container:not(.question-image-card) .question-content .prose * {
   color: var(--text-100) !important;
 }
 

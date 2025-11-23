@@ -18,18 +18,32 @@
 }
 
 .question-content {
-  font-feature-settings: "kern" 1, "liga" 1;
+  /* Keep kerning but disable ligatures/contextual alternates so parentheses and punctuation are preserved */
+  font-feature-settings: "kern" 1, "liga" 0, "calt" 0 !important;
+  font-variant-ligatures: none !important;
+  -webkit-font-feature-settings: "liga" 0 !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
 .question-content span.math,
 .question-content span.latex {
   font-family: "Computer Modern", Georgia, serif;
+  font-feature-settings: "liga" 0, "calt" 0 !important;
+  font-variant-ligatures: none !important;
 }
 
 /* Fix parentheses visibility */
 .question-content .math * {
   font-family: "Computer Modern", Georgia, serif !important;
+}
+
+/* Force high-contrast question text for non-image question cards */
+.question-container:not(.question-image-card) .question-content,
+.question-container:not(.question-image-card) .question-stem,
+.question-container:not(.question-image-card) .question-stimulus,
+.question-container:not(.question-image-card) .question-content .prose,
+.question-container:not(.question-image-card) .question-content .prose * {
+  color: var(--text-100) !important;
 }
 
 /* Disable ligatures and typographic substitutions inside math regions to
@@ -55,7 +69,17 @@
 
 /* Enhanced option styling */
 .answer-option {
-  @apply relative overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/50 p-4 transition-all hover:border-zinc-700 hover:bg-zinc-900/50;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(39, 39, 42);
+  background: rgba(12, 12, 13, 0.5);
+  padding: 1rem;
+  transition: all 0.2s ease;
+  min-height: 4rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
   backdrop-filter: blur(8px);
 }
 
@@ -78,14 +102,14 @@
 /* Cool animations */
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px theme('colors.emerald.500'),
-                0 0 10px theme('colors.emerald.500'),
-                0 0 15px theme('colors.emerald.500');
+    box-shadow: 0 0 5px rgba(var(--cyber-primary-rgb),0.18),
+                0 0 10px rgba(var(--cyber-primary-rgb),0.12),
+                0 0 15px rgba(var(--cyber-primary-rgb),0.08);
   }
   50% {
-    box-shadow: 0 0 10px theme('colors.emerald.500'),
-                0 0 20px theme('colors.emerald.500'),
-                0 0 30px theme('colors.emerald.500');
+    box-shadow: 0 0 10px rgba(var(--cyber-primary-rgb),0.22),
+                0 0 20px rgba(var(--cyber-primary-rgb),0.16),
+                0 0 30px rgba(var(--cyber-primary-rgb),0.12);
   }
 }
 

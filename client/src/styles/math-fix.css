@@ -1,0 +1,55 @@
+/* math-fix.css
+   Strong overrides to ensure ligatures/contextual alternates do not
+   transform or hide punctuation (parentheses, commas, etc.) in question
+   content and MathJax-rendered math. This file is imported after the main
+   theme to guarantee it wins in the cascade.
+*/
+
+/* Broadly disable all ligatures and contextual substitutions inside
+   question content, prose, and MathJax elements. Use !important to
+   override other theme rules that enable ligatures. */
+.question-content,
+.question-content *,
+.question-stem,
+.question-stimulus,
+.question-stimulus *,
+.prose,
+.prose *,
+.question-card,
+.question-card *,
+.MathJax,
+.MathJax *,
+.mjx-chtml,
+.mjx-chtml *,
+.mjx-char,
+.mjx-mn,
+.mjx-mi,
+.mjx-mo {
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0, "clig" 0, "calt" 0, "hist" 0 !important;
+  -webkit-font-feature-settings: "liga" 0 !important;
+  -moz-font-feature-settings: "liga" 0 !important;
+}
+
+/* Specific MathJax character spans (ensure parentheses and operators are plain) */
+.mjx-mn, .mjx-mi, .mjx-mo, .mjx-cjk, .mjx-char {
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0, "clig" 0, "calt" 0 !important;
+}
+
+/* Some themes/utility classes enable advanced text rendering; force a
+   conservative text-rendering mode inside math/question areas. */
+.question-content, .prose, .MathJax, .mjx-chtml {
+  text-rendering: auto !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* If any rule attempted to invert or filter images globally, ensure that
+   MathJax spans (SVG/HTML) remain unfiltered to avoid glyph distortion. */
+.MathJax svg, .mjx-chtml svg { filter: none !important; mix-blend-mode: normal !important; }
+
+/* Defensive: some builds set ligatures via shorthand; reset the shorthand too. */
+.question-content, .question-content * { font-feature-settings: normal !important; }
+
+/* End of math-fix.css */
