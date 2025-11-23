@@ -32,6 +32,27 @@
   font-family: "Computer Modern", Georgia, serif !important;
 }
 
+/* Disable ligatures and typographic substitutions inside math regions to
+   prevent parentheses and punctuation from being transformed or hidden. */
+.question-content .math,
+.question-content .MathJax,
+.question-content span.math,
+.question-content span.latex {
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0 !important;
+  -webkit-font-feature-settings: "liga" 0 !important;
+  -moz-font-feature-settings: "liga" 0 !important;
+}
+
+/* Ensure question text is high-contrast and readable */
+.question-content,
+.question-stem,
+.question-stimulus,
+.question-content .prose,
+.question-content .prose * {
+  color: var(--text-100) !important;
+}
+
 /* Enhanced option styling */
 .answer-option {
   @apply relative overflow-hidden rounded-lg border border-zinc-800 bg-zinc-950/50 p-4 transition-all hover:border-zinc-700 hover:bg-zinc-900/50;

@@ -34,6 +34,27 @@
   font-family: "Computer Modern", Georgia, serif !important;
 }
 
+/* Disable ligatures and typographic substitutions inside math regions */
+.question-content .math,
+.question-content .MathJax,
+.question-content span.math,
+.question-content span.latex,
+.question-content .MathJax_Display {
+  font-variant-ligatures: none !important;
+  font-feature-settings: "liga" 0 !important;
+  -webkit-font-feature-settings: "liga" 0 !important;
+  -moz-font-feature-settings: "liga" 0 !important;
+}
+
+/* Ensure question text is high-contrast and readable */
+.question-content,
+.question-stem,
+.question-stimulus,
+.question-content .prose,
+.question-content .prose * {
+  color: var(--text-100) !important;
+}
+
 /* Enhanced option styling */
 .answer-option {
   position: relative;
