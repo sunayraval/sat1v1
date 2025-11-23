@@ -116,6 +116,10 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     difficulties?: string[];
     numQuestions?: number;
     skills?: string[];
+    roomName?: string;
+    isPrivate?: boolean;
+    password?: string;
+    maxPlayers?: number;
   }) => {
     if (!database) return false;
 
@@ -145,14 +149,29 @@ export function useGameRoom(roomId: string | null, playerId: string) {
       }
 
       // Persist the room and the selected question order so all clients use the same list
-      await set(roomRef, {
+      const roomPayload: any = {
         currentQuestion: 0,
         started: false,
         players: [playerId],
         scores: { [playerId]: 0 },
         config: config || undefined,
         questions: shuffled.map((q) => q.id),
-      });
+        // metadata
+        meta: {
+          name: config?.roomName || `Room ${newRoomId}`,
+          isPrivate: !!config?.isPrivate,
+          maxPlayers: config?.maxPlayers || 8,
+        },
+        // map of player display names (optional)
+        names: { [playerId]: "You" },
+        chat: [],
+      };
+
+      if (config?.isPrivate && config?.password) {
+        roomPayload.meta.password = String(config.password);
+      }
+
+      await set(roomRef, roomPayload);
 
       return true;
     } catch (error) {
@@ -162,7 +181,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
   }, [playerId]);
 
   // Join an existing room if it exists and is not full
-  const joinRoom = useCallback(async (roomCode: string) => {
+  const joinRoom = useCallback(async (roomCode: string, opts?: { name?: string; password?: string }) => {
     if (!database) {
       console.error("Firebase not initialized");
       return false;
@@ -178,26 +197,73 @@ export function useGameRoom(roomId: string | null, playerId: string) {
 
       const data = snapshot.val();
       const players = data.players || [];
-      
+
       if (players.includes(playerId)) {
         // already joined
         return true;
       }
 
-      if (players.length >= 2) {
-        // this simple app limits rooms to two players
-        return false;
+      // enforce privacy / password if set
+      const meta = data.meta || {};
+      if (meta.isPrivate) {
+        const expected = meta.password;
+        const provided = opts?.password;
+        if (!provided || String(provided) !== String(expected)) {
+          return false; // wrong or missing password
+        }
       }
 
+      const maxPlayers = meta.maxPlayers || 8;
+      if (players.length >= maxPlayers) {
+        return false; // full
+      }
+
+      // add the player to arrays/maps
+      const newPlayers = [...players, playerId];
+      const newScores = { ...(data.scores || {}), [playerId]: 0 };
+      const newNames = { ...(data.names || {}), [playerId]: opts?.name || `Player ${newPlayers.length}` };
+
       await update(roomRef, {
-        players: [...players, playerId],
+        players: newPlayers,
         started: true,
-        scores: { ...data.scores, [playerId]: 0 },
+        scores: newScores,
+        names: newNames,
       });
 
       return true;
     } catch (error) {
       console.error("Error joining room:", error);
+      return false;
+    }
+  }, [playerId]);
+
+  // Set or update the current player's display name in the room
+  const setPlayerName = useCallback(async (roomCode: string, name: string) => {
+    if (!database) return false;
+
+    try {
+      const nameRef = ref(database, `rooms/${roomCode}/names/${playerId}`);
+      await set(nameRef, String(name));
+      return true;
+    } catch (error) {
+      console.error("Error setting player name:", error);
+      return false;
+    }
+  }, [playerId]);
+
+  // Send a chat message to the room (appends to a 'chat' list)
+  const sendMessage = useCallback(async (roomCode: string, message: { text: string; timestamp?: number }) => {
+    if (!database) return false;
+
+    try {
+      const roomRef = ref(database, `rooms/${roomCode}/chat`);
+      const snapshot = await get(roomRef);
+      const existing = snapshot.exists() ? snapshot.val() : [];
+      const next = Array.isArray(existing) ? [...existing, { text: message.text, sender: playerId, timestamp: message.timestamp || Date.now() }] : [{ text: message.text, sender: playerId, timestamp: message.timestamp || Date.now() }];
+      await set(roomRef, next);
+      return true;
+    } catch (error) {
+      console.error("Error sending message:", error);
       return false;
     }
   }, [playerId]);
@@ -297,5 +363,7 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     nextQuestion,
     leaveRoom,
     setScores,
+    setPlayerName,
+    sendMessage,
   };
 }

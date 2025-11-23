@@ -24,6 +24,10 @@ interface GameLobbyProps {
     difficulties?: string[];
     numQuestions?: number;
     skills?: string[];
+    roomName?: string;
+    isPrivate?: boolean;
+    password?: string;
+    maxPlayers?: number;
   }) => void;
   onJoinRoom: (roomCode: string) => void;
 }
@@ -34,6 +38,10 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [selectedDifficulties, setSelectedDifficulties] = useState<string[]>([]);
   const [numQuestions, setNumQuestions] = useState<number>(10);
+  const [roomName, setRoomName] = useState<string>("");
+  const [isPrivate, setIsPrivate] = useState<boolean>(false);
+  const [roomPassword, setRoomPassword] = useState<string>("");
+  const [maxPlayers, setMaxPlayers] = useState<number>(4);
 
   const { toast } = useToast();
 
@@ -52,6 +60,10 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
       difficulties?: string[];
       numQuestions?: number;
       skills?: string[];
+      roomName?: string;
+      isPrivate?: boolean;
+      password?: string;
+      maxPlayers?: number;
     } = {};
     // Validate selected modules: do not allow creating rooms with unsupported modules
     if (selectedModules.length > 0) {
@@ -65,6 +77,12 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
     }
     if (selectedDifficulties.length > 0) config.difficulties = selectedDifficulties;
     if (numQuestions && Number.isFinite(numQuestions)) config.numQuestions = numQuestions;
+    if (roomName) config.roomName = roomName;
+    if (isPrivate) {
+      config.isPrivate = true;
+      if (roomPassword) config.password = roomPassword;
+    }
+    if (maxPlayers && Number.isFinite(maxPlayers)) config.maxPlayers = maxPlayers;
     onCreateRoom(code, config);
   };
 
@@ -165,6 +183,23 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
                   className="w-28 rounded-md border px-2 py-2 text-center"
                   data-testid="input-num-questions"
                 />
+              </div>
+              <div className="mt-3">
+                <label className="text-sm muted mb-1 block">Room name (optional)</label>
+                <input value={roomName} onChange={(e) => setRoomName(e.target.value)} className="w-full rounded-md border px-2 py-2" placeholder="Fun Room Name" />
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={isPrivate} onChange={(e) => setIsPrivate(e.target.checked)} />
+                  <span className="text-sm">Private room</span>
+                </label>
+                {isPrivate && (
+                  <input value={roomPassword} onChange={(e) => setRoomPassword(e.target.value)} placeholder="Password (optional)" className="w-40 rounded-md border px-2 py-2" />
+                )}
+              </div>
+              <div className="mt-3">
+                <label className="text-sm muted mb-1 block">Max players</label>
+                <input type="number" min={2} max={16} value={maxPlayers} onChange={(e) => setMaxPlayers(Number(e.target.value))} className="w-28 rounded-md border px-2 py-2 text-center" />
               </div>
               {error && (
                 <p className="text-sm text-destructive text-center" data-testid="text-error">

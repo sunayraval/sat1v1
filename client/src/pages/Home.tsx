@@ -24,6 +24,8 @@ import WaitingRoom from "@/components/WaitingRoom";
 import ScoreBoard from "@/components/ScoreBoard";
 import QuestionDisplay from "@/components/QuestionDisplay";
 import GameOver from "@/components/GameOver";
+import Chat from "@/components/Chat";
+import Review from "@/components/Review";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { GameState } from "@shared/schema";
@@ -115,6 +117,8 @@ export default function Home() {
   const [selectedAnswer, setSelectedAnswer] = useState<number | undefined>();
   const [playerScore, setPlayerScore] = useState(0);
   const [opponentScore, setOpponentScore] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
+  const [retakeIds, setRetakeIds] = useState<string[] | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [lastRoundResult, setLastRoundResult] = useState<{ playerCorrect: boolean; opponentCorrect: boolean } | null>(null);
@@ -140,6 +144,8 @@ export default function Home() {
     leaveRoom,
     setScores,
   } = useGameRoom(gameState === "lobby" ? null : roomCode, playerId);
+
+
 
   // Compute supported modules from available questions so default config doesn't include unsupported modules
   const supportedModules = useMemo(() => {
@@ -197,6 +203,12 @@ export default function Home() {
 
   // Build the questions list according to room config (modules, difficulties, numQuestions)
   const questions = useMemo(() => {
+    if (retakeIds && retakeIds.length > 0) {
+      // explicit override when re-taking wrong questions locally
+      const byId = new Map(Object.values(satQuestions).map((q) => [q.id, q]));
+      const mapped = retakeIds.map((id) => byId.get(id)).filter(Boolean) as typeof satQuestions;
+      return mapped;
+    }
     // If the room has a persisted question order, use it so all players see the same questions
     if (roomData?.questions && Array.isArray(roomData.questions) && roomData.questions.length > 0) {
       const byId = new Map(Object.values(satQuestions).map((q) => [q.id, q]));
@@ -373,10 +385,7 @@ export default function Home() {
     }
   };
 
-  const handleAnswer = (answerIndex: number) => {
-    setSelectedAnswer(answerIndex);
-    submitAnswer(roomCode, answerIndex);
-  };
+  
 
   const handlePlayAgain = () => {
     setSelectedAnswer(undefined);
@@ -465,14 +474,30 @@ export default function Home() {
 
   if (gameState === "gameover") {
     return (
-      <GameOver
-        playerScore={playerScore}
-        opponentScore={opponentScore}
-        // Use the actual quiz length (questions selected for this room) instead
-        totalQuestions={questions.length}
-        onPlayAgain={handlePlayAgain}
-        onNewRoom={handleNewRoom}
-      />
+      <div>
+        <GameOver
+          playerScore={playerScore}
+          opponentScore={opponentScore}
+          // Use the actual quiz length (questions selected for this room) instead
+          totalQuestions={questions.length}
+          onPlayAgain={handlePlayAgain}
+          onNewRoom={handleNewRoom}
+        />
+        <div className="max-w-2xl mx-auto px-4 mt-6">
+          <Review
+            questionIds={questions.map(q => q.id)}
+            userAnswers={userAnswers}
+            onRetake={(ids) => {
+              // Start a local reattempt of wrong questions
+              setRetakeIds(ids);
+              setPlayerScore(0);
+              setOpponentScore(0);
+              processedQuestionRef.current = -1;
+              setGameState("playing");
+            }}
+          />
+        </div>
+      </div>
     );
   }
 
@@ -498,6 +523,14 @@ export default function Home() {
   const safeIndex = Math.max(0, Math.min(currentQuestionIndex, questions.length - 1));
   const currentQuestion = questions[safeIndex];
 
+  const handleAnswer = (answerIndex: number) => {
+    setSelectedAnswer(answerIndex);
+    // record locally for review; prefer question id when available
+    const qId = currentQuestion?.id || roomData?.questions?.[currentQuestionIndex] || `idx_${currentQuestionIndex}`;
+    setUserAnswers((s) => ({ ...s, [qId]: answerIndex }));
+    submitAnswer(roomCode, answerIndex);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-dark py-8 space-y-6">
       <div className="max-w-2xl mx-auto px-4 mb-4 flex justify-between items-center">
@@ -518,6 +551,11 @@ export default function Home() {
         showResult={showResult}
         isCorrect={lastRoundResult?.playerCorrect ?? false}
       />
+      {roomCode && (
+        <div className="max-w-2xl mx-auto px-4 mt-4">
+          <Chat roomId={roomCode} playerId={playerId} />
+        </div>
+      )}
       {showExplanation && currentQuestion.content.rationale && (
         <div className="max-w-2xl mx-auto px-4 mt-4 animate-fadeIn">
           <Card className="neon-container">
