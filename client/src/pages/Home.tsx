@@ -29,7 +29,6 @@ import Review from "@/components/Review";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { GameState } from "@shared/schema";
-import { satQuestions } from "@shared/questions";
 import { useGameRoom } from "@/hooks/useGameRoom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -147,47 +146,10 @@ export default function Home() {
 
 
 
-  // Compute supported modules from available questions so default config doesn't include unsupported modules
-  const supportedModules = useMemo(() => {
-    const set = new Set<string>();
-    Object.values(satQuestions).forEach((q) => set.add((q.module || "").toLowerCase()));
-    return Array.from(set).filter(Boolean);
-  }, []);
+  // Known supported modules — no need to iterate the full question bank on the client
+  const supportedModules = useMemo(() => ["math", "english"], []);
 
-  // Deterministic shuffle helper (seeded) so fallback ordering matches across clients
-  const seededShuffle = (arr: any[], seedInput: string) => {
-    // simple xmur3 + mulberry32 seeded RNG
-    const xmur3 = (str: string) => {
-      let h = 1779033703 ^ str.length;
-      for (let i = 0; i < str.length; i++) {
-        h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
-        h = (h << 13) | (h >>> 19);
-      }
-      return () => {
-        h = Math.imul(h ^ (h >>> 16), 2246822507);
-        h = Math.imul(h ^ (h >>> 13), 3266489909);
-        return (h ^= h >>> 16) >>> 0;
-      };
-    };
 
-    const mulberry32 = (a: number) => {
-      return () => {
-        let t = (a += 0x6D2B79F5);
-        t = Math.imul(t ^ (t >>> 15), t | 1);
-        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-      };
-    };
-
-    const seed = xmur3(seedInput)();
-    const rand = mulberry32(seed);
-    const copy = arr.slice();
-    for (let i = copy.length - 1; i > 0; i--) {
-      const j = Math.floor(rand() * (i + 1));
-      [copy[i], copy[j]] = [copy[j], copy[i]];
-    }
-    return copy;
-  };
 
   // Determine which question the room is currently on and the opponent's id
   const currentQuestionIndex = roomData?.currentQuestion || 0;
@@ -201,63 +163,24 @@ export default function Home() {
     }
   }, [roomData?.scores, playerId, opponentId]);
 
-  // Build the questions list according to room config (modules, difficulties, numQuestions)
+  // Questions are now stored as full objects in Firebase by createRoom.
+  // Just read them from roomData — no 25MB client-side lookup needed.
   const questions = useMemo(() => {
-    if (retakeIds && retakeIds.length > 0) {
-      // explicit override when re-taking wrong questions locally
-      const byId = new Map(Object.values(satQuestions).map((q) => [q.id, q]));
-      const mapped = retakeIds.map((id) => byId.get(id)).filter(Boolean) as typeof satQuestions;
-      return mapped;
-    }
-    // If the room has a persisted question order, use it so all players see the same questions
-    if (roomData?.questions && Array.isArray(roomData.questions) && roomData.questions.length > 0) {
-      const byId = new Map(Object.values(satQuestions).map((q) => [q.id, q]));
-      const mapped = roomData.questions.map((id) => byId.get(id)).filter(Boolean) as typeof satQuestions;
+    // For local retake mode, filter from roomData.questions
+    if (retakeIds && retakeIds.length > 0 && roomData?.questions) {
+      const allQ = roomData.questions as any[];
+      const byId = new Map(allQ.map((q: any) => [q.id, q]));
+      const mapped = retakeIds.map((id) => byId.get(id)).filter(Boolean);
       if (mapped.length > 0) return mapped;
     }
 
-    // Fallback: build list from config (used when no questions were persisted)
-    const all = Object.values(satQuestions);
-    const modules = roomData?.config?.modules;
-    const difficulties = roomData?.config?.difficulties;
-    const num = roomData?.config?.numQuestions;
-    
-    let filtered = all;
-
-    // If no modules selected, use all modules
-    if (modules && modules.length > 0) {
-      filtered = filtered.filter((q) => {
-        const questionModule = q.module.toLowerCase();
-        return modules.some(m => m.toLowerCase() === questionModule);
-      });
-    }
-    
-    if (difficulties && difficulties.length > 0) {
-      filtered = filtered.filter((q) => q.difficulty && difficulties.includes(q.difficulty));
+    // Normal mode: questions come as full objects from Firebase
+    if (roomData?.questions && Array.isArray(roomData.questions) && roomData.questions.length > 0) {
+      return roomData.questions as any[];
     }
 
-    // Ensure we have enough questions, if not, add more from other modules
-    if (filtered.length < (num || 10)) {
-      const remainingCount = (num || 10) - filtered.length;
-      const otherQuestions = all
-        .filter(q => !filtered.includes(q))
-        .sort(() => Math.random() - 0.5)
-        .slice(0, remainingCount);
-      filtered = [...filtered, ...otherQuestions];
-    }
-
-  // Randomize the order deterministically using the room code as a seed so both
-  // clients will produce the same fallback order if the persisted `questions`
-  // array hasn't arrived yet.
-  const seed = roomCode || JSON.stringify(roomData?.config) || "default-seed";
-  filtered = seededShuffle(filtered, seed);
-
-    if (num && num > 0) {
-      filtered = filtered.slice(0, num);
-    }
-
-    return filtered.length > 0 ? filtered : all;
-  }, [roomData?.config]);
+    return [];
+  }, [roomData?.questions, retakeIds]);
 
   // Reset selected answer when question changes
   useEffect(() => {
@@ -285,6 +208,26 @@ export default function Home() {
     }
   }, [roomData, gameState, toast]);
 
+  // Detect opponent disconnect: if player count drops below 2 during play,
+  // notify the remaining player and end the game gracefully.
+  useEffect(() => {
+    if (!roomData || gameState !== "playing") return;
+    if (roomData.players && roomData.players.length < 2) {
+      toast({
+        title: "Opponent left",
+        description: "Your opponent disconnected. Returning to lobby.",
+        variant: "destructive",
+      });
+      if (roomCode) leaveRoom(roomCode);
+      setSelectedAnswer(undefined);
+      setPlayerScore(0);
+      setOpponentScore(0);
+      processedQuestionRef.current = -1;
+      setRoomCode("");
+      setGameState("lobby");
+    }
+  }, [roomData?.players, gameState]);
+
   // Handle answer processing
   useEffect(() => {
     if (!roomData || gameState !== "playing") return;
@@ -309,36 +252,53 @@ export default function Home() {
       const newPlayerScore = playerScore + (playerCorrect ? 1 : 0);
       const newOpponentScore = opponentScore + (opponentCorrect ? 1 : 0);
 
-  // Update local scores
+      // Update local scores
       setPlayerScore(newPlayerScore);
       setOpponentScore(newOpponentScore);
 
-  // Show result to the user before moving on
-  setLastRoundResult({ playerCorrect, opponentCorrect });
-  setShowResult(true);
+      // Show result to the user before moving on
+      setLastRoundResult({ playerCorrect, opponentCorrect });
+      setShowResult(true);
 
-      // Persist scores to the room so both clients stay in sync
-      try {
-        if (setScores) {
-          const toUpdate: Record<string, number> = {};
-          toUpdate[playerId] = newPlayerScore;
-          if (opponentId) toUpdate[opponentId] = newOpponentScore;
-          setScores(roomCode, toUpdate);
+      // Only the HOST (players[0]) writes scores and advances to avoid the
+      // race condition where both clients fire these writes simultaneously,
+      // causing double-increments and skipped questions.
+      const isHost = roomData.players?.[0] === playerId;
+
+      if (isHost) {
+        // Persist scores to the room so both clients stay in sync
+        try {
+          if (setScores) {
+            const toUpdate: Record<string, number> = {};
+            toUpdate[playerId] = newPlayerScore;
+            if (opponentId) toUpdate[opponentId] = newOpponentScore;
+            setScores(roomCode, toUpdate);
+          }
+        } catch (err) {
+          // ignore - setScores logs errors
         }
-      } catch (err) {
-        // ignore - setScores logs errors
+
+        // Move to next question or end game after delay (give user time to see the correct answer)
+        setTimeout(() => {
+          setShowResult(false);
+          setLastRoundResult(null);
+          if (currentQuestionIndex < questions.length - 1) {
+            nextQuestion(roomCode, currentQuestionIndex + 1);
+          } else {
+            setGameState("gameover");
+          }
+        }, 3000);
+      } else {
+        // Non-host just clears local result display after delay
+        setTimeout(() => {
+          setShowResult(false);
+          setLastRoundResult(null);
+          // The host will advance the question; this client picks it up via Firebase listener
+          if (currentQuestionIndex >= questions.length - 1) {
+            setGameState("gameover");
+          }
+        }, 3000);
       }
-
-      // Move to next question or end game after delay (give user time to see the correct answer)
-      setTimeout(() => {
-        setShowResult(false);
-        setLastRoundResult(null);
-        if (currentQuestionIndex < questions.length - 1) {
-          nextQuestion(roomCode, currentQuestionIndex + 1);
-        } else {
-          setGameState("gameover");
-        }
-      }, 3000);
     }
   }, [roomData?.answers, gameState, currentQuestionIndex, playerId, opponentId, playerScore, opponentScore, roomCode, nextQuestion]);
 
@@ -485,7 +445,8 @@ export default function Home() {
         />
         <div className="max-w-2xl mx-auto px-4 mt-6">
           <Review
-            questionIds={questions.map(q => q.id)}
+            questionIds={questions.map((q: any) => q.id)}
+            questions={questions}
             userAnswers={userAnswers}
             onRetake={(ids) => {
               // Start a local reattempt of wrong questions

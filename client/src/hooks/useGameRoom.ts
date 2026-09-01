@@ -35,9 +35,8 @@ interface GameRoomData {
     difficulties?: Array<"E" | "M" | "H">;
     numQuestions?: number;
   };
-  questions?: string[];
+  questions?: any[];  // Full question objects stored by createRoom
 }
-import { satQuestions } from "@shared/questions";
 
 export function useGameRoom(roomId: string | null, playerId: string) {
   const [roomData, setRoomData] = useState<GameRoomData | null>(null);
@@ -90,24 +89,6 @@ export function useGameRoom(roomId: string | null, playerId: string) {
         cleanupFn();
       }
     };
-    
-    const unsubscribe = onValue(roomRef, (snapshot) => {
-      const data = snapshot.val();
-      // Debug: log room updates to help trace white-screen runtime issues
-      // (kept at debug level so it can be filtered in production logs)
-      // eslint-disable-next-line no-console
-      console.debug("useGameRoom: room update ->", data);
-      if (data) {
-        setRoomData(data);
-        setIsConnected(true);
-      } else {
-        setRoomData(null);
-        setIsConnected(false);
-      }
-    });
-
-    // Clean up listener on unmount or when roomId changes
-    return () => unsubscribe();
   }, [roomId]);
 
   // Create a new room with the current player as the first participant
@@ -126,43 +107,41 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     try {
       const roomRef = ref(database, `rooms/${newRoomId}`);
 
-      // Normalize config for reliable filtering
-      const modulesLower = config?.modules?.map(m => String(m).toLowerCase()) || [];
-      const difficulties = config?.difficulties || [];
-      const num = config?.numQuestions || 10;
-
-      // Filter questions deterministically on the server-side (creator client)
-      let filtered = satQuestions.slice();
-      if (modulesLower.length > 0) {
-        filtered = filtered.filter((q) => modulesLower.includes((q.module || "").toLowerCase()));
+      // Fetch questions from the server API instead of bundling the 25MB JSON
+      const params = new URLSearchParams();
+      if (config?.modules && config.modules.length > 0) {
+        params.set("modules", config.modules.join(","));
       }
-      if (difficulties.length > 0) {
-        filtered = filtered.filter((q) => q.difficulty && difficulties.includes(q.difficulty));
+      if (config?.difficulties && config.difficulties.length > 0) {
+        params.set("difficulties", config.difficulties.join(","));
+      }
+      params.set("limit", String(config?.numQuestions || 10));
+
+      const response = await fetch(`/api/questions/random?${params.toString()}`);
+      if (!response.ok) {
+        console.error("Failed to fetch questions from API");
+        return false;
       }
 
-      // Shuffle (non-cryptographic) and pick requested number
-      const shuffled = filtered.sort(() => Math.random() - 0.5).slice(0, num);
-
-      if (shuffled.length === 0) {
+      const questions = await response.json();
+      if (!Array.isArray(questions) || questions.length === 0) {
         console.error("No questions available for selected criteria");
         return false;
       }
 
-      // Persist the room and the selected question order so all clients use the same list
+      // Store full question objects in Firebase so clients don't need the 25MB file
       const roomPayload: any = {
         currentQuestion: 0,
         started: false,
         players: [playerId],
         scores: { [playerId]: 0 },
         config: config || undefined,
-        questions: shuffled.map((q) => q.id),
-        // metadata
+        questions: questions,
         meta: {
           name: config?.roomName || `Room ${newRoomId}`,
           isPrivate: !!config?.isPrivate,
           maxPlayers: config?.maxPlayers || 8,
         },
-        // map of player display names (optional)
         names: { [playerId]: "You" },
         chat: [],
       };
@@ -273,21 +252,6 @@ export function useGameRoom(roomId: string | null, playerId: string) {
     if (!database) return false;
 
     try {
-      const roomRef = ref(database, `rooms/${roomCode}`);
-      const snapshot = await get(roomRef);
-      
-      if (!snapshot.exists()) {
-        throw new Error("Room not found");
-      }
-
-      const data = snapshot.val();
-      const questionId = data.questions[data.currentQuestion];
-      const question = satQuestions.find(q => q.id === questionId);
-      
-      if (!question) {
-        throw new Error("Question not found");
-      }
-
       const answerRef = ref(database, `rooms/${roomCode}/answers/${playerId}`);
       await set(answerRef, answerIndex);
       return true;

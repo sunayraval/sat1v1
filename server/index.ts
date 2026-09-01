@@ -17,6 +17,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
+export { app };
 
 // Attach rawBody to requests for cases where we might want to inspect the
 // original body bytes (useful for webhooks or signature verification).

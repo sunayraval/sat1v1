@@ -10,12 +10,11 @@
   Keep changes here light-weight — the heavy lifting is in Home.tsx and
   useGameRoom hook which perform the network/database work.
 */
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy } from "lucide-react";
-import { satQuestions } from "@shared/questions";
 import { useToast } from "@/hooks/use-toast";
 
 interface GameLobbyProps {
@@ -45,11 +44,13 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
 
   const { toast } = useToast();
 
-  // Compute supported modules from available questions so we don't offer modules with no data
-  const supportedModules = useMemo(() => {
-    const set = new Set<string>();
-    Object.values(satQuestions).forEach((q) => set.add((q.module || "").toLowerCase()));
-    return Array.from(set).filter(Boolean);
+  // Fetch supported modules from the API instead of loading the 25MB question bank
+  const [supportedModules, setSupportedModules] = useState<string[]>(["math", "english"]);
+  useEffect(() => {
+    fetch("/api/questions/modules")
+      .then((res) => res.json())
+      .then((data) => { if (Array.isArray(data) && data.length > 0) setSupportedModules(data); })
+      .catch(() => { /* keep defaults */ });
   }, []);
 
   const handleCreateRoom = () => {
@@ -234,60 +235,33 @@ export default function GameLobby({ onCreateRoom, onJoinRoom }: GameLobbyProps) 
   <Card className="neon-container w-full p-4 terminal-panel">
           <CardHeader>
             <CardTitle className="text-lg neon-heading">Question Bank Overview</CardTitle>
-            <CardDescription className="muted text-sm">Live counts by module and difficulty</CardDescription>
+            <CardDescription className="muted text-sm">Available modules and difficulty levels</CardDescription>
           </CardHeader>
           <CardContent>
-            {(() => {
-              const total = satQuestions.length;
-              const byModule: Record<string, number> = {};
-              const byDifficulty: Record<string, number> = { E: 0, M: 0, H: 0 };
-              const bySkill: Record<string, number> = {};
-              satQuestions.forEach((q) => {
-                const m = (q.module || "unknown").toLowerCase();
-                byModule[m] = (byModule[m] || 0) + 1;
-                if (q.difficulty) byDifficulty[q.difficulty] = (byDifficulty[q.difficulty] || 0) + 1;
-                if (q.skill_desc) bySkill[q.skill_desc] = (bySkill[q.skill_desc] || 0) + 1;
-              });
-
-              return (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm muted">Total questions</p>
-                      <p className="text-2xl font-bold neon-heading">{total}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Modules</p>
-                      <div className="flex gap-2 mt-1 flex-wrap">
-                        {Object.entries(byModule).map(([m, cnt]) => (
-                          <span key={m} className="px-2 py-1 rounded badge-accent text-sm">{m}: {cnt}</span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground">By difficulty</p>
-                    <div className="flex gap-2 mt-1">
-                      <span className="px-2 py-1 rounded badge-accent text-sm">Easy: {byDifficulty.E}</span>
-                      <span className="px-2 py-1 rounded badge-accent text-sm">Medium: {byDifficulty.M}</span>
-                      <span className="px-2 py-1 rounded badge-accent text-sm">Hard: {byDifficulty.H}</span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-sm text-muted-foreground">Top categories</p>
-                    <div className="grid grid-cols-1 gap-2 mt-2 max-h-40 overflow-auto">
-                      {Object.entries(bySkill).slice(0, 12).map(([skill, cnt]) => (
-                        <div key={skill} className="text-sm px-2 py-1 rounded badge-accent muted">
-                          <strong className="neon-heading">{skill}</strong> — {cnt}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Available Modules</p>
+                <div className="flex gap-2 mt-1 flex-wrap">
+                  {supportedModules.map((m) => (
+                    <span key={m} className="px-2 py-1 rounded badge-accent text-sm capitalize">{m}</span>
+                  ))}
                 </div>
-              );
-            })()}
+              </div>
+
+              <div>
+                <p className="text-sm text-muted-foreground">Difficulty Levels</p>
+                <div className="flex gap-2 mt-1">
+                  <span className="px-2 py-1 rounded badge-accent text-sm">Easy</span>
+                  <span className="px-2 py-1 rounded badge-accent text-sm">Medium</span>
+                  <span className="px-2 py-1 rounded badge-accent text-sm">Hard</span>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-muted-foreground">How it works</p>
+                <p className="text-sm mt-1 muted">Create a room, share the code, and duel against a friend on SAT-style questions!</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
