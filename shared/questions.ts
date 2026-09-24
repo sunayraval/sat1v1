@@ -9,18 +9,22 @@ import { Question } from "./schema";
 import rawQuestionsData from "./questions.json";
 
 interface RawQuestion {
-  content: {
-    stem: string;
-    // Many source items use `prompt`, `body`, or `stimulus_reference` to hold
-    // passage/context content. Include them to allow extraction.
+  content?: {
+    stem?: string;
     prompt?: string;
     body?: string;
     stimulus_reference?: string;
     stimulus?: string;
-    answerOptions?: string[];
+    answerOptions?: Array<string | { id?: string; content?: string }>;
     correct_answer?: string[];
     keys?: string[];
     rationale?: string;
+    answer?: {
+      style?: string;
+      choices?: Record<string, { body?: string }>;
+      correct_choice?: string;
+      rationale?: string;
+    };
   };
   module?: string;
   difficulty?: string;
@@ -29,84 +33,78 @@ interface RawQuestion {
 }
 
 function transformQuestion(id: string, raw: RawQuestion): Question | null {
-  // There are several possible fields where stimulus/prompt data may live
-  // Accept `stem`, `prompt`, or `body` as the question stem; prefer `stem` when present.
-  const stemHtml = raw?.content?.stem || raw?.content?.prompt || raw?.content?.body || "";
+  const content = raw?.content;
+  if (!content) return null;
+
+  // Accept stem, prompt, or body as the question stem
+  const stemHtml = content.stem || content.prompt || content.body || "";
   if (!stemHtml) return null;
 
   // Normalize module to lowercase for consistent filtering
   const module = raw.module?.toLowerCase() || "math";
-  const difficulty = raw.difficulty || "M";
+  const difficulty = (raw.difficulty as "E" | "M" | "H") || "M";
 
-  // Skip questions without exactly 4 answer options
-  if (!raw.content.answerOptions || raw.content.answerOptions.length !== 4) {
-    return null;
-  }
+  let answerOptions: string[] = [];
+  let correct_answer: string[] = [];
+  const rationale = content.rationale || content.answer?.rationale || "";
 
-  let answerOptions = raw.content.answerOptions;
-
-  // Normalize answerOptions: some items are objects {id, content} — extract content HTML
-  if (answerOptions && answerOptions.length > 0) {
-    if (typeof answerOptions[0] === "object") {
-      answerOptions = (answerOptions as any[]).map((opt) => opt?.content ?? String(opt));
+  // Format A: content.answer.choices with a, b, c, d
+  if (content.answer?.choices) {
+    const choices = content.answer.choices;
+    const choiceKeys = ["a", "b", "c", "d"];
+    if (choiceKeys.every((k) => choices[k] && choices[k].body !== undefined)) {
+      answerOptions = choiceKeys.map((k) => String(choices[k].body || "").trim());
+      const correctKey = (content.answer.correct_choice || "").trim().toLowerCase();
+      if (choices[correctKey]?.body !== undefined) {
+        correct_answer = [String(choices[correctKey].body).trim()];
+      }
     }
-    // Clean up common artifacts where options are prefixed with a letter and newline (e.g. "B\n<p>...</p>")
-    answerOptions = answerOptions.map((s) => {
+  } else if (content.answerOptions && content.answerOptions.length === 4) {
+    // Format B: content.answerOptions array of 4 items
+    let rawOptions = content.answerOptions;
+    if (typeof rawOptions[0] === "object") {
+      rawOptions = (rawOptions as any[]).map((opt) => opt?.content ?? String(opt));
+    }
+    answerOptions = (rawOptions as string[]).map((s) => {
       if (typeof s !== "string") return String(s);
-      // remove leading single-letter labels like 'A', 'B', 'C', 'D' followed by newline or punctuation
       return s.replace(/^\s*[A-Da-d](?:\.|\)|:)?\s*[\r\n]+/, "").trim();
     });
 
-    // Ensure exactly 4 answer options
-    while (answerOptions.length < 4) {
-      // Add placeholder incorrect answers if needed
-      answerOptions.push(`Option ${answerOptions.length + 1}`);
+    correct_answer = content.correct_answer && content.correct_answer.length
+      ? content.correct_answer
+      : content.keys && content.keys.length
+        ? content.keys
+        : [];
+
+    if (correct_answer.length > 0 && typeof correct_answer[0] === "string" && /^[A-D]$/i.test(correct_answer[0].trim())) {
+      correct_answer = correct_answer.map((label) => {
+        const idx = label.trim().toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
+        return answerOptions[idx] ?? label;
+      });
     }
-    // Take only first 4 if there are more
-    answerOptions = answerOptions.slice(0, 4);
   }
 
-  let correct_answer = raw.content.correct_answer && raw.content.correct_answer.length
-    ? raw.content.correct_answer
-    : raw.content.keys && raw.content.keys.length
-      ? raw.content.keys
-      : [];
+  // Must have exactly 4 answer options and at least one valid correct answer
+  if (answerOptions.length !== 4 || correct_answer.length === 0) return null;
+  if (!answerOptions.some((opt) => correct_answer.includes(opt))) return null;
 
-  // If correct_answer uses letter labels like "A", "B", "C", map them to the actual option content
-  if (correct_answer.length > 0 && typeof correct_answer[0] === "string" && /^[A-D]$/i.test(correct_answer[0].trim())) {
-    correct_answer = correct_answer.map((label) => {
-      const idx = label.trim().toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
-      return answerOptions[idx] ?? label;
-    });
-  }
-
-  // If still no answerOptions but we have keys, use keys as options
-  if (answerOptions.length === 0 && raw.content.keys?.length) {
-    answerOptions = raw.content.keys;
-  }
-
-  if (answerOptions.length === 0) return null; // skip free-response items
-
-  // Extract stimulus (passage/figure/table) if present. Many items use `body`,
-  // `stimulus_reference` or `prompt` to carry the passage. We preserve that
-  // as `stimulus` so the UI can show it before the stem.
-  const stimulusHtml = raw.content?.body ?? raw.content?.stimulus_reference ?? raw.content?.stimulus ?? null;
+  const stimulusHtml = content.stimulus_reference ?? content.stimulus ?? (content.stem ? content.prompt : null) ?? null;
 
   return {
     id,
-    module: (raw.module?.toLowerCase() as any) || "math",
-    difficulty: (raw.difficulty as any) || "M",
+    module,
+    difficulty,
     skill_desc: raw.skill_desc || "",
     content: {
       stem: String(stemHtml),
       stimulus: stimulusHtml ? String(stimulusHtml) : undefined,
       answerOptions,
       correct_answer,
-      rationale: raw.content.rationale || ""
-    }
-  } as Question;
+      rationale,
+    },
+  };
 }
 
-export const satQuestions: Question[] = Object.entries(rawQuestionsData as Record<string, RawQuestion>)
+export const satQuestions: Question[] = Object.entries(rawQuestionsData as unknown as Record<string, RawQuestion>)
   .map(([id, raw]) => transformQuestion(id, raw))
   .filter((q): q is Question => q !== null);

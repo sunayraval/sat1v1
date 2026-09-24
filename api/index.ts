@@ -6,10 +6,12 @@
 */
 import express from "express";
 import questionsRouter from "../server/api/questions";
+import roomsRouter from "../server/api/rooms";
 
 const app = express();
 
 app.use(express.json());
 app.use("/api/questions", questionsRouter);
+app.use("/api/rooms", roomsRouter);
 
 export default app;

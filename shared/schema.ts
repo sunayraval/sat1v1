@@ -71,3 +71,14 @@ export interface PlayerScore {
   score: number;
   displayName?: string;
 }
+
+// User schema for optional user persistence / storage
+export const userSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  password: z.string().optional(),
+});
+
+export type User = z.infer<typeof userSchema>;
+export type InsertUser = Omit<User, "id">;
+
